@@ -7,15 +7,23 @@ class Runner(object):
     self.services = []
     self.outputs = []
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     self.logger = logging.getLogger('mcb')
 
     if config:
       self.loadConfig(config)
 
   def loadConfig(self, config):
+    self.config = config
+
     self.services = config.getServices()
     self.outputs = config.getOutputs()
+
+  def saveConfig(self):
+    self.config.importServices(self.services)
+    self.config.importOutputs(self.outputs)
+
+    self.config.save()
 
   def run(self):
     pipe = OutputPipe(self.outputs)
@@ -36,4 +44,8 @@ class Runner(object):
       service.runBackup()
 
     self.logger.info('All done')
+
+    self.logger.info('Saving data...')
+    self.saveConfig()
+
 

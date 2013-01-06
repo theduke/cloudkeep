@@ -11,3 +11,7 @@ Required python packages:
 
 * pyyaml
 * requests
+
+Dropbox API:
+https://www.dropbox.com/developers/reference/sdk
+https://www.dropbox.com/static/developers/dropbox-python-sdk-1.5.1.zip

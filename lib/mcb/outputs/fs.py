@@ -13,16 +13,44 @@ class Filesystem(Output):
   def prepare(self):
     pass
 
-  def add(self, name, data):
-    path = self.path + '/' + self.prefix
+  def set(self, name, data, bucket=None, mode='w'):
+    path = self.path + os.path.sep  + self.prefix
+
+    if bucket:
+      path += os.path.sep + bucket
+
     if not os.path.isdir(path):
       os.makedirs(path)
 
-    path += '/' + name
+    path += os.path.sep + name
 
-    f = gzip.open(path, 'wb') if self.gzip else open(path, 'w')
+    f = gzip.open(path, mode) if self.gzip else open(path, mode)
 
-    if (data):
-      f.write(data)
+    f.write(data)
+    f.close()
 
-    return f
+  def get(self, name, bucket=None, mode='r'):
+    path = self.path + os.path.sep  + self.prefix
+
+    if bucket:
+      path += os.path.sep + bucket
+
+    path += os.path.sep + name
+
+    if os.path.isfile(path):
+      return open(path, mode)
+    else:
+      return False
+
+  def getStream(self, name, bucket=None, mode='r+'):
+    path = self.path + os.path.sep  + self.prefix
+
+    if bucket:
+      path += os.path.sep + bucket
+
+    if not os.path.isdir(path):
+      os.makedirs(path)
+
+    path += os.path.sep + name
+
+    return open(path, mode)

@@ -1,4 +1,5 @@
 from mcb.services import Service
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -35,7 +36,7 @@ class GoogleHack(Service):
       raise Exception('Login failed')
 
 
-class Calendar(GoogleHack):
+class CalendarService(GoogleHack):
 
   exportUrl = 'https://www.google.com/calendar/exporticalzip'
 
@@ -48,4 +49,4 @@ class Calendar(GoogleHack):
   def runBackup(self):
     self.login()
     response = self.session.get(self.exportUrl)
-    self.output.add('calendars.zip', response.content)
+    self.output.set('calendars.zip', response.content)

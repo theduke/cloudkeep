@@ -9,6 +9,10 @@ class Plugin(object):
 
     self.setup()
 
+  def getClassName(self):
+    name = self.__class__.__module__ + '.' + self.__class__.__name__
+    return name
+
   def setup(self):
     pass
 
@@ -34,10 +38,10 @@ class Plugin(object):
       valid = self.validateField(conf['typ'], value)
 
       if not valid:
-        raise Exception('Config validation failed: field {name}, value {val}').format(
+        raise Exception('Config validation failed: field {name}, value {val}'.format(
           name=name,
           val=value
-        )
+        ))
 
   def validateField(self, typ, value):
     valid = None
@@ -56,9 +60,9 @@ class Plugin(object):
     return valid
 
   def getConfig(self):
-    config = {
+    config = dict(
       (name, self.__dict__[name]) for (name, conf) in self.config.items()
-    }
+    )
     return config
 
   def setConfig(self, data):

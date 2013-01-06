@@ -7,10 +7,13 @@ class Service(Plugin):
     self.output = None
 
   def getOutputPrefix(self):
-    return self.name
+    raise Exception('getOutputPrefix not implemented in ' + self.name)
 
   def setOutput(self, output):
     self.output = output
+
+  def run(self):
+    self.runBackup()
 
   def runBackup(self):
     raise Exception('Run method not implemented in: ' + self.__class__.__name__)

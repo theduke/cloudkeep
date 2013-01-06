@@ -16,8 +16,33 @@ class Output(Plugin):
 
   # add a new data unit to the store
   # returns a file-like object that can be written to
-  def add(self, name, data=None):
+  def set(self, name, data, bucket=None, mode='w'):
     raise Exception('add method not implemented')
+
+  def get(self, name, bucket=None, mode='r'):
+    raise Exception('get method not implemented in ' + self.getClassName())
+
+  def getStream(self, name, bucket=None, mode='r+'):
+    raise Exception('getStream method not implemented in ' + self.getClassName())
+
+class FilePipe(object):
+
+  def __init__(self):
+    self.files = []
+
+  def setFiles(self, files):
+    self.files = files
+
+  def addFile(self, f):
+    self.files.append(f)
+
+  def write(self, data):
+    for f in self.files:
+      f.write(data)
+
+  def close(self):
+    for f in self.files:
+      f.close()
 
 class OutputPipe(object):
 
@@ -42,7 +67,26 @@ class OutputPipe(object):
   def setOutputs(self, outputs):
     self.outputs = outputs
 
-  def add(self, name, data=None):
+  def set(self, name, data, bucket=None, mode='w'):
     for output in self.outputs:
-      output.add(name, data)
+      f = output.set(name, data, bucket, mode)
 
+  def get(self, name, bucket=None, mode='r'):
+    return [output.get(name, bucket, mode) for output in self.outputs]
+
+  def getStream(self, name, bucket=None, mode='r+'):
+    pipe = FilePipe()
+
+    for output in self.outputs:
+      f = output.getStream(name, bucket, mode)
+
+      if not f:
+        raise Exception('Could not open "{bucket}/{file}"" in mode {mode}'.format(
+          bucket=bucket,
+          file=name,
+          mode=mode
+        ))
+
+      pipe.addFile(f)
+
+    return pipe

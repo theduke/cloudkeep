@@ -1,4 +1,4 @@
-
+import sys
 import json
 import yaml
 from mcb.outputs import OutputPipe
@@ -8,6 +8,8 @@ class Config(object):
   def __init__(self):
     self.services = {}
     self.outputs = {}
+
+    self.filepath = None
 
   def buildPlugin(self, name, conf):
     moduleName = name[:name.rfind('.')]
@@ -24,9 +26,14 @@ class Config(object):
   def getServices(self):
     return [self.buildPlugin(name, conf) for name, conf in self.services.items()]
 
-  # build an output instance from an OutputConfig
-  def buildOutput(self, config):
-    pass
+  def importServices(self, services):
+    new = {}
+
+    for service in services:
+      name = service.getClassName()
+      new[name] = service.getConfig()
+
+    self.services = new
 
   def getOutputs(self):
     return [self.buildPlugin(name, conf) for (name, conf) in self.outputs.items()]
@@ -34,13 +41,27 @@ class Config(object):
   def getOutputPipe(self):
     return OutputPipe(self.getOutputs())
 
+  def importOutputs(self, outputs):
+    new = {}
+
+    for output in outputs:
+      name = output.getClassName()
+      new[name] = output.getConfig()
+
+    self.outputs = new
+
   def getAsDict(self):
     return {
       'services': self.services,
       'outputs': self.outputs
     }
 
+  def save(self):
+    self.toFile()
+
   def fromFile(self, path, format='yaml'):
+    self.filepath = path
+
     f = open(path, 'r')
     data = f.read()
     f.close()
@@ -62,14 +83,16 @@ class Config(object):
     self.services = conf['services']
     self.outputs = conf['outputs']
 
-  def toFile(self, path, format='yaml'):
+  def toFile(self, path=None, format='yaml'):
+    if not path: path = self.filepath
+
     conf = self.getAsDict()
 
     data = None
     if format == 'yaml':
-      data = yaml.dump(data)
+      data = yaml.dump(conf, default_flow_style=False)
     elif format == 'json':
-      data = json.dumps(data)
+      data = json.dumps(conf)
     else:
       raise Exception('Invalid format: ' + format)
 
