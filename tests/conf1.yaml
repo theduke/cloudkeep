@@ -1,0 +1,8 @@
+services:
+  mcb.services.google.Calendar:
+    email: ''
+    passwor: ''
+outputs:
+  mcb.outputs.fs.Filesystem:
+    path: "/tmp/mcb"
+
