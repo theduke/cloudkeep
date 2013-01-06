@@ -4,7 +4,7 @@ import sys, os
 
 # set up PYTHONPATH
 path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-libpath = path + '/lib'
+libpath = path
 sys.path.append(libpath)
 
 import mcb
@@ -16,4 +16,5 @@ config.fromFile(path + '/tests/conf1.yaml', 'yaml')
 
 runner = Runner(config)
 runner.run()
+runner.saveConfig()
 
