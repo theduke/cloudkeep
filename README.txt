@@ -6,6 +6,7 @@ Filesystem, Amazon S3, Dropbox, ...).
 
 MCB will have a command line client and a cross-platform GUI.
 
+MCB is under the New BSD License (see LICENSE.txt).
 
 Services
 ========
