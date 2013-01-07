@@ -9,7 +9,9 @@ Services
 
 MyCloudBackup supports the following Services:
 
+* Google Gmail - Back up all your Gmail mails into mbox files, does not preserv tags
 * Google Calendar - Back up all your calendars as ical files
+
 * Dropbox - Back up your entire Dropbox folder
 * Email (Imap) - Back up any IMAP-accesible email account into widely used mbox files
 
