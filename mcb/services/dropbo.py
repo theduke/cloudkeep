@@ -20,8 +20,8 @@ class DropboxService(Service):
     self.client = None
     self.meta = {}
 
-  def getOutputPrefix(self):
-    return 'dropbox.' + self.username
+  def getPluginOutputPrefix(self):
+    return self.username
 
   def loadMetaData(self):
     mfile = self.output.get('.metadata')[0]
@@ -36,6 +36,8 @@ class DropboxService(Service):
       self.output.set('.metadata', data=json.dumps(self.meta))
 
   def getClient(self):
+    import dropbox
+
     self.session = sess = dropbox.session.DropboxSession(
       self.app_key,
       self.app_secret,

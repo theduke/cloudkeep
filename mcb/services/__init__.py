@@ -7,7 +7,15 @@ class Service(Plugin):
     self.output = None
 
   def getOutputPrefix(self):
-    raise Exception('getOutputPrefix not implemented in ' + self.name)
+    """
+    Retrieve the output bundle to use.
+    Do not overwrite this!
+    To customize, implement getPluginOutputPrefix.
+    """
+    return self.name + '.' + self.getPluginOutputPrefix()
+
+  def getPluginOutputPrefix(self):
+    raise Exception('getPluginOutputPrefix not implemented in ' + self.getClassName())
 
   def setOutput(self, output):
     self.output = output

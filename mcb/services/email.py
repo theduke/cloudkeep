@@ -31,8 +31,8 @@ Options: none(default), gzip, bzip2
     self.imap = None
     self.delimiter = None
 
-  def getOutputPrefix(self):
-    return self.name + '.' + self.host + '.' + self.username.replace('@', '_at_')
+  def getPluginOutputPrefix(self):
+    return self.host + '.' + self.username.replace('@', '_at_')
 
   # Regular expressions for parsing
   MSGID_RE = re.compile("^Message\-Id\: (.+)", re.IGNORECASE + re.MULTILINE)

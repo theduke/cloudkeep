@@ -1,4 +1,5 @@
 from mcb.services import Service
+from mcb.services.email import EmailImapService
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,6 +12,9 @@ class GoogleHack(Service):
     super(GoogleHack, self).__init__()
     self.addConfig('email')
     self.addConfig('password')
+
+  def getPluginOutputPrefix(self):
+    return self.email.replace('@', '_at_')
 
   def login(self):
     self.session = session = requests.Session()
@@ -43,10 +47,29 @@ class CalendarService(GoogleHack):
   def setup(self):
     self.name = 'google.calendar'
 
-  def getOutputPrefix(self):
-    return 'google.calendar.' + self.email.replace('@', '_at_')
-
   def runBackup(self):
     self.login()
     response = self.session.get(self.exportUrl)
     self.output.set('calendars.zip', response.content)
+
+class GmailService(EmailImapService):
+  """Imap imported customized for Gmail, to prevent duplicate messages
+  A lot more coud be done here, this is just preliminary:
+  Problem: Gmail supplies each tag as a separate IMAP folder, so messages
+  get duplicated multiple times.
+
+  For now we just use the [Gmail]/All folder
+  This does not allow to restore the tag structure properly though!
+  """
+
+  def setup(self):
+    super(GmailService, self).setup()
+
+    self.name = 'google.gmail'
+
+    self.host = 'imap.gmail.com'
+    self.port = 993
+    self.ssl = True
+
+  def getFolders(self):
+    return ['[Gmail]/All Mail']
