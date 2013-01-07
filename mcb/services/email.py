@@ -123,49 +123,38 @@ Options: none(default), gzip, bzip2
 
     return messages
 
-  def getMailboxMessageIds(self, mbox):
-    """Gets IDs of messages in the specified folder, returns id:num dict"""
+  def getMessageIdForMailboxMessage(self, index):
+    # Retrieve Message-Id
+    typ, data = self.imap.fetch(index, '(BODY[HEADER.FIELDS (MESSAGE-ID)])')
+    if typ != 'OK':
+      raise Exception("FETCH of msg {i} failed: {error}".format(
+        i=index,
+        error=data
+      ))
 
-    messages = {}
-
-    typ, data = self.imap.select(mbox, readonly=True)
-    if 'OK' != typ:
-      raise Exception("SELECT failed: %s" % (data))
-    num_msgs = int(data[0])
-
-    # each message
-    for num in range(1, num_msgs+1):
-      # Retrieve Message-Id
-      typ, data = self.imap.fetch(num, '(BODY[HEADER.FIELDS (MESSAGE-ID)])')
-      if 'OK' != typ:
+    header = data[0][1].strip()
+    # remove newlines inside Message-Id (a dumb Exchange trait)
+    header = self.BLANKS_RE.sub(' ', header)
+    try:
+      msg_id = self.MSGID_RE.match(header).group(1)
+    except (IndexError, AttributeError):
+      # Some messages may have no Message-Id, so we'll synthesise one
+      # (this usually happens with Sent, Drafts and .Mac news)
+      typ, data = self.imap.fetch(index, '(BODY[HEADER.FIELDS (FROM TO CC DATE SUBJECT)])')
+      if typ != 'OK':
         raise Exception("FETCH of msg {i} failed: {error}".format(
-          i=num,
-          error=data
-        ))
+        i=index,
+        error=data
+      ))
 
       header = data[0][1].strip()
-      # remove newlines inside Message-Id (a dumb Exchange trait)
-      header = self.BLANKS_RE.sub(' ', header)
-      try:
-        msg_id = self.MSGID_RE.match(header).group(1)
-        if msg_id not in messages.keys():
-          # avoid adding dupes
-          messages[msg_id] = num
-      except (IndexError, AttributeError):
-        # Some messages may have no Message-Id, so we'll synthesise one
-        # (this usually happens with Sent, Drafts and .Mac news)
-        typ, data = self.imap.fetch(num, '(BODY[HEADER.FIELDS (FROM TO CC DATE SUBJECT)])')
-        if 'OK' != typ:
-          raise Exception("FETCH of msg {i} failed: {error}".format(
-          i=num,
-          error=data
-        ))
+      header = header.replace('\r\n','\t')
 
-        header = data[0][1].strip()
-        header = header.replace('\r\n','\t')
-        messages['<' + self.UUID + '.' + sha.sha(header).hexdigest() + '>'] = num
+      msg_id = '<' + self.UUID + '.' + sha.sha(header).hexdigest() + '>'
 
-    return messages
+    return msg_id
+
+
 
   def parseParenList(self, row):
     """Parses the nested list of attributes at the start of a LIST response"""
@@ -254,29 +243,40 @@ Options: none(default), gzip, bzip2
 
   def backupMailbox(self, mbox):
     suffix = {'none':'', 'gzip':'.gz', 'bzip2':'.bz2'}[self.compression]
-    filename = '.'.join(mbox.split(self.delimiter)) + '.mbox'
 
+    filename = '.'.join(mbox.split(self.delimiter))
+    filename = filename.replace(' ', '_')
+    filename = re.sub(r'[^a-zA-Z0-9\.]', '', filename)
+    filename += '.mbox'
 
-    serverMsgIds = self.getMailboxMessageIds(mbox)
     fileMsgIds = self.getFileMessageIds(filename)
-    newIds = {}
 
-    for msgId, index in serverMsgIds.items():
-      if msgId not in fileMsgIds:
-        newIds[msgId] = index
+    # select mailbox, and get message count
+    typ, data = self.imap.select(mbox, readonly=True)
+    if typ != 'OK':
+      raise Exception("SELECT of folder {mb} failed: {error}".format(
+        mb=mbox,
+        error=data
+      ))
+    msgCount = int(data[0])
 
-    self.logger.info('Downloading {count} new messages'.format(
-      count=len(newIds)
-    ))
     stream = self.output.getStream(filename, mode='ab')
 
-    for msgId, index in newIds.items():
-      self.logger.debug('Downloading message "{id} with index {index}"'.format(
-        id=msgId,
-        index=index
+    for index in range(1, msgCount+1):
+      msgId = self.getMessageIdForMailboxMessage(index)
+
+      self.logger.debug('Processing message with index {index}, id {id}'.format(
+        index=index,
+        id=msgId
       ))
-      data = self.downloadMessage(msgId, index)
-      stream.write(data)
+
+      if msgId not in fileMsgIds:
+        self.logger.debug('Downloading message "{id} with index {index}"'.format(
+          id=msgId,
+          index=index
+        ))
+        data = self.downloadMessage(msgId, index)
+        stream.write(data)
 
     stream.close()
 
