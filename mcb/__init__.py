@@ -1,3 +1,4 @@
+import os, shutil
 
 class Plugin(object):
 
@@ -14,11 +15,21 @@ class Plugin(object):
     name = self.__class__.__module__ + '.' + self.__class__.__name__
     return name
 
+  def setup(self):
+    pass
+
+  def getTmpPath(self):
+    path = os.path.expanduser('~/.mcb/tmp/' + self.name)
+
+    if os.path.isdir(path):
+      shutil.rmtree(path)
+
+    os.makedirs(path)
+    return path
+
   def setProgressHandler(self, handler):
     self.progressHandler = handler
 
-  def setup(self):
-    pass
 
   def addConfig(self, name, typ='string', default=None, description=''):
     types = ['string', 'number', 'int', 'float', 'bool']
