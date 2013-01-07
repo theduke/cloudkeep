@@ -10,11 +10,12 @@ sys.path.append(libpath)
 import mcb
 from mcb.config import Config
 from mcb.runner import Runner
+from mcb.frontends.cli import getCliRunner
 
 config = mcb.config.Config()
 config.fromFile(path + '/tests/conf1.yaml', 'yaml')
 
-runner = Runner(config)
+runner = getCliRunner(config)
 runner.run()
 runner.saveConfig()
 
