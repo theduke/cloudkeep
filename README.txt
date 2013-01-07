@@ -1,7 +1,10 @@
-mycloudbackup
+MyCloudBackup
 =============
 
-Back up data form all of your cloud services to a local or remote Filesystem (Dropbox, Amazon S3, ...)
+Back up data from all of your cloud services to a local or remote storate(like
+Filesystem, Amazon S3, Dropbox, ...).
+
+MCB will have a command line client and a cross-platform GUI.
 
 
 Services
@@ -42,8 +45,17 @@ DropboxService:
 GithubService:
 * GitPython: https://github.com/gitpython-developers
 
-
 ===============================================================
 To install all dependencies run bin/install-deps.py           =
 Requires easy_install or pip                                  =
 ===============================================================
+
+Plugin System
+=============
+
+MCB has a modular plugin system, that makes it easy to add new services and
+outputs.
+
+Will write documentation on how to write plugins soon.
+For now, just copy an existing one and adapt it.
+Starting point for services: mcb/services/github.py
