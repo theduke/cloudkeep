@@ -52,6 +52,12 @@ class DropboxService(Service):
       raw_input()
 
       access_token = sess.obtain_access_token(request_token)
+
+      self.logger.info('Acquired access token: {token}/{secret}'.format(
+        token=access_token.key,
+        secret=access_token.secret
+      ))
+
       self.access_token = access_token.key
       self.access_token_secret = access_token.secret
     else:
