@@ -53,4 +53,7 @@ class Filesystem(Output):
 
     path += os.path.sep + name
 
+    if not os.path.isfile(path):
+      mode = 'w+'
+
     return open(path, mode)
