@@ -67,6 +67,10 @@ class Plugin(object):
     config = dict(
       (name, self.__dict__[name]) for (name, conf) in self.config.items()
     )
+
+    # remove name, should not be in save
+    del config['name']
+
     return config
 
   def setConfig(self, data):
