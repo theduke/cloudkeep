@@ -46,11 +46,6 @@ DropboxService:
 GithubService:
 * GitPython: https://github.com/gitpython-developers
 
-===============================================================
-To install all dependencies run bin/install-deps.py           =
-Requires easy_install or pip                                  =
-===============================================================
-
 Plugin System
 =============
 
@@ -60,3 +55,8 @@ outputs.
 Will write documentation on how to write plugins soon.
 For now, just copy an existing one and adapt it.
 Starting point for services: mcb/services/github.py
+
+Contributors
+============
+
+Christoph Herzog - chris@theduke.at
