@@ -57,7 +57,16 @@ class Config(object):
     }
 
   def save(self):
-    self.toFile()
+    if self.filepath: self.toFile()
+
+  def fromDict(self, conf):
+    if not 'services' in conf:
+      raise Exception('Invalid config: no services data')
+    if not 'outputs' in conf:
+      raise Exception('Invalid config: no outputs data')
+
+    self.services = conf['services']
+    self.outputs = conf['outputs']
 
   def fromFile(self, path, format='yaml'):
     self.filepath = path
@@ -75,13 +84,7 @@ class Config(object):
     else:
       raise Exception('Invalid format: ' + format)
 
-    if not 'services' in conf:
-      raise Exception('Invalid config: no services data')
-    if not 'outputs' in conf:
-      raise Exception('Invalid config: no outputs data')
-
-    self.services = conf['services']
-    self.outputs = conf['outputs']
+    self.fromDict(conf)
 
   def toFile(self, path=None, format='yaml'):
     if not path: path = self.filepath
