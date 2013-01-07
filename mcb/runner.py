@@ -1,5 +1,6 @@
 import logging
 from mcb.outputs import OutputPipe
+from mcb import ProgressHandler
 
 class Runner(object):
 
@@ -13,6 +14,8 @@ class Runner(object):
     if config:
       self.loadConfig(config)
 
+    self.progressHandler = None
+
   def loadConfig(self, config):
     self.config = config
 
@@ -25,7 +28,11 @@ class Runner(object):
 
     self.config.save()
 
+  def setProgressHandler(self, handler):
+    self.progressHandler = handler
+
   def run(self):
+    # create output pipe
     pipe = OutputPipe(self.outputs)
     pipe.prepare()
     pipe.setLogger(self.logger)
@@ -41,7 +48,9 @@ class Runner(object):
       pipe.setPrefix(service.getOutputPrefix())
       service.setLogger(self.logger)
       service.setOutput(pipe)
-      service.runBackup()
+      service.setProgressHandler(self.progressHandler)
+
+      service.run()
 
     self.logger.info('All done')
 

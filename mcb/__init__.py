@@ -4,6 +4,7 @@ class Plugin(object):
   def __init__(self):
     self.config = {}
     self.logger = None
+    self.progressHandler = None
 
     self.addConfig('name')
 
@@ -13,10 +14,13 @@ class Plugin(object):
     name = self.__class__.__module__ + '.' + self.__class__.__name__
     return name
 
+  def setProgressHandler(self, handler):
+    self.progressHandler = handler
+
   def setup(self):
     pass
 
-  def addConfig(self, name, typ='string', default=None):
+  def addConfig(self, name, typ='string', default=None, description=''):
     types = ['string', 'number', 'int', 'float', 'bool']
 
     if not typ in types:
@@ -71,3 +75,37 @@ class Plugin(object):
 
   def setLogger(self, logger):
     self.logger = logger
+
+class ProgressHandler(object):
+  def __init__(self):
+    self.tasks = {}
+    self.activeTask = None
+
+  def addTask(self, name, active=True, progress=0):
+    self.tasks[name] = progress
+
+    self.onTaskAdded(name, progress)
+    if active:
+      self.activateTask(name)
+
+  def activateTask(self, name):
+    self.activeTask = name
+    self.onTaskActivated(name, self.tasks[name])
+
+  def setProgress(self, progress):
+    self.tasks[self.activateTask] = progress
+
+    self.onProgressChanged(self.activateTask, progress)
+
+  def onTaskAdded(self, name, progress):
+    # implement in child class
+    pass
+
+  def onTaskActivated(self, name, progress):
+    # implement in child class
+    pass
+
+  def onProgressChanged(self, name, progress):
+    # implement in child classes
+    pass
+
