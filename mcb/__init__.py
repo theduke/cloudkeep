@@ -7,7 +7,7 @@ class Plugin(object):
     self.logger = None
     self.progressHandler = None
 
-    self.addConfig('name')
+    self.addConfig('name', internal=True)
 
     self.setup()
 
@@ -31,13 +31,18 @@ class Plugin(object):
     self.progressHandler = handler
 
 
-  def addConfig(self, name, typ='string', default=None, description=''):
+  def addConfig(self, name, typ='string', default=None, description='', internal=False):
     types = ['string', 'number', 'int', 'float', 'bool']
 
     if not typ in types:
       raise Exception('Unknown config type: ' + typ)
 
-    self.config[name] = {'typ': typ, 'default': default}
+    self.config[name] = {
+      'typ': typ,
+      'default': default,
+      'description': description,
+      'internal': internal
+    }
     self.__dict__[name] = default
 
   def validate(self):
@@ -92,18 +97,22 @@ class Plugin(object):
     self.logger = logger
 
 class ProgressHandler(object):
+
   def __init__(self):
     self.tasks = {}
     self.activeTask = None
 
-  def addTask(self, name, active=True, progress=0):
+  def addTask(self, name, active=False, progress=0):
     self.tasks[name] = progress
 
     self.onTaskAdded(name, progress)
     if active:
       self.activateTask(name)
 
-  def activateTask(self, name):
+  def startTask(self, name):
+    if not name in self.tasks:
+      self.addTask(name)
+
     self.activeTask = name
     self.onTaskActivated(name, self.tasks[name])
 
@@ -111,6 +120,9 @@ class ProgressHandler(object):
     self.tasks[self.activateTask] = progress
 
     self.onProgressChanged(self.activateTask, progress)
+
+  def finishTask(self, name):
+    self.onTaskFinished(name)
 
   def onTaskAdded(self, name, progress):
     # implement in child class
@@ -124,3 +136,6 @@ class ProgressHandler(object):
     # implement in child classes
     pass
 
+  def onTaskFinished(self, name):
+    # implement in child classes
+    pass
