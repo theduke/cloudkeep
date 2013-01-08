@@ -8,7 +8,6 @@ class Runner(object):
     self.services = []
     self.outputs = []
 
-    logging.basicConfig(level=logging.DEBUG)
     self.logger = logging.getLogger('mcb')
 
     if config:
@@ -41,7 +40,9 @@ class Runner(object):
       count=len(self.services)
     ))
     for service in self.services:
-      self.logger.info('Backing up ' + service.__class__.__name__)
+      self.logger.info('Backing up ' + service.name)
+
+      self.progressHandler.startTask('Backing up ' + service.name)
 
       service.validate()
 
@@ -51,6 +52,8 @@ class Runner(object):
       service.setProgressHandler(self.progressHandler)
 
       service.run()
+
+      self.progressHandler.finishTask('Backing up ' + service.name)
 
     self.logger.info('All done')
 
