@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import json
 import yaml
 from mcb.outputs import OutputPipe
@@ -22,6 +22,9 @@ class Config(object):
     instance.setConfig(conf)
 
     return instance
+
+  def addService(self, className, conf):
+    self.services[className] = conf
 
   def getServices(self):
     return [self.buildPlugin(name, conf) for name, conf in self.services.items()]
@@ -68,8 +71,11 @@ class Config(object):
     self.services = conf['services']
     self.outputs = conf['outputs']
 
-  def fromFile(self, path, format='yaml'):
+  def fromFile(self, path, format='yaml', create=True):
     self.filepath = path
+
+    if not os.path.isfile(path) and create:
+      return
 
     f = open(path, 'r')
     data = f.read()
