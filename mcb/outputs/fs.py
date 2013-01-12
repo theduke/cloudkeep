@@ -27,6 +27,9 @@ class Filesystem(Output):
   def set(self, name, data, bucket=None, mode='w'):
     path = self.getPath(name, bucket, create=True)
 
+    if hasattr(data, 'read'):
+      data = data.read()
+
     f = gzip.open(path, mode) if self.gzip else open(path, mode)
 
     f.write(data)
