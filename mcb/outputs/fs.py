@@ -14,7 +14,7 @@ class Filesystem(Output):
     pass
 
   def getPath(self, name, bucket=None, create=False):
-    path = super(Filesystem, self).getPath(name, bucket)
+    path = self.path + os.path.sep + super(Filesystem, self).getPath(name, bucket)
 
     if create:
       parent = os.path.dirname(path)

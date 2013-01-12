@@ -55,7 +55,7 @@ class Output(Plugin):
     self.prefix = prefix
 
   def getPath(self, name, bucket=None, sep=os.path.sep):
-    path = self.path + sep + self.prefix
+    path = self.prefix
 
     if bucket:
       path += sep + bucket
