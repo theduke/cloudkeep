@@ -30,7 +30,7 @@ Options: [none, tar, gz, bz2]
 """)
 
     self.addConfig('issues', 'bool', default=True)
-    self.addConfig('user_repos', default=None, description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
+    self.addConfig('user_repos', default='', description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
 
   def getPluginOutputPrefix(self):
     return self.username
