@@ -173,7 +173,17 @@ class Cli(object):
     runner = self.getCliRunner(config)
 
     print("Runnin all backups")
-    runner.run()
+
+    try:
+      runner.run()
+    except Exception as e:
+      if args.verbose:
+        raise e
+      else:
+        print("An error occured: " + e.message)
+
+      return
+
     print("All backups finished")
 
   def run(self, args):

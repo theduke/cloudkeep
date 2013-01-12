@@ -31,6 +31,9 @@ class Runner(object):
     self.progressHandler = handler
 
   def run(self):
+    if not len(self.outputs):
+      raise Exception("No outputs configured")
+
     # create output pipe
     pipe = OutputPipe(self.outputs)
     pipe.prepare()
