@@ -26,9 +26,9 @@ Outputs
 MyCloudBackup supports the following outputs (backup targets):
 
 * Filesystem - Backup to your own computer
+* Dropbox - Back up to your Dropbox account
 
 Soon to come:
-* Dropbox
 * Amazon S3
 ...
 
