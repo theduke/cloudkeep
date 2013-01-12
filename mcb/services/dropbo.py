@@ -1,23 +1,17 @@
 import json
 import os, time
+
 from mcb.services import Service
+from mcb.utils.dropbo import DropboxMixin
 
 import dropbox
 
-class DropboxService(Service):
+class DropboxService(Service, DropboxMixin):
 
   def setup(self):
-    self.name = 'dropbox'
+    Service.setup(self)
+    DropboxMixin.setup(self)
 
-    self.addConfig('app_key', default='1ykd6aqi5m05m0t')
-    self.addConfig('app_secret', default='qs5ga0gd61fxuz3')
-
-    self.addConfig('username')
-    self.addConfig('access_token', default='')
-    self.addConfig('access_token_secret', default='')
-
-    self.session = None
-    self.client = None
     self.meta = {}
 
   def getPluginOutputPrefix(self):
@@ -34,37 +28,6 @@ class DropboxService(Service):
 
   def saveMetaData(self):
       self.output.set('.metadata', data=json.dumps(self.meta))
-
-  def getClient(self):
-    import dropbox
-
-    self.session = sess = dropbox.session.DropboxSession(
-      self.app_key,
-      self.app_secret,
-      'dropbox'
-    )
-
-    if not self.access_token:
-      request_token = sess.obtain_request_token()
-      url = sess.build_authorize_url(request_token)
-      print "url:", url
-      print "Please visit this website and press the 'Allow' button, then hit 'Enter' here."
-      raw_input()
-
-      access_token = sess.obtain_access_token(request_token)
-
-      self.logger.info('Acquired access token: {token}/{secret}'.format(
-        token=access_token.key,
-        secret=access_token.secret
-      ))
-
-      self.access_token = access_token.key
-      self.access_token_secret = access_token.secret
-    else:
-      sess.set_token(self.access_token, self.access_token_secret)
-
-    client = dropbox.client.DropboxClient(sess)
-    return client
 
   def downloadDir(self, dir):
     meta = self.client.metadata(dir)
@@ -112,4 +75,3 @@ class DropboxService(Service):
 
     self.client = self.getClient()
     self.downloadDir('/')
-
