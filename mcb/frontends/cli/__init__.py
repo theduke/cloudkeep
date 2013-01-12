@@ -40,7 +40,7 @@ class Cli(object):
     #############
 
     addService = subparsers.add_parser('add-service',
-      help='Add a new service to be backed up.'
+      help='Add a new service to be backed up'
     )
 
     help = "Type of the service, available: "
@@ -54,7 +54,7 @@ class Cli(object):
     #############
 
     addOutput = subparsers.add_parser('add-output',
-      help='Add a new output to be backed up.'
+      help='Add a new output'
     )
 
     help = "Type of the output, available: "
@@ -68,8 +68,12 @@ class Cli(object):
     #############
 
     run = subparsers.add_parser('run',
-      help='Run the backups.'
+      help='Run the backups'
     )
+
+    help = "Backup mode: [mirror, full]"
+    run.add_argument('--mode', help=help)
+
     run.set_defaults(func=self.runCmd)
 
     return parser
@@ -198,6 +202,9 @@ class Cli(object):
 
     config = self.getConfig(args.config)
     runner = self.getCliRunner(config)
+
+    if args.mode:
+      runner.mode = args.mode
 
     print("Runnin all backups")
 

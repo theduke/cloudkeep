@@ -5,9 +5,13 @@ from mcb.outputs import OutputPipe
 
 class Config(object):
 
+  MODE_MIRROR = 'mirror'
+  MODE_FULL = 'full'
+
   def __init__(self):
     self.services = []
     self.outputs = []
+    self.mode = self.MODE_MIRROR
 
     self.filepath = None
 
@@ -59,7 +63,8 @@ class Config(object):
   def getAsDict(self):
     return {
       'services': self.services,
-      'outputs': self.outputs
+      'outputs': self.outputs,
+      'mode': self.mode
     }
 
   def save(self):
@@ -73,6 +78,7 @@ class Config(object):
 
     self.services = conf['services']
     self.outputs = conf['outputs']
+    self.mode = conf['mode']
 
   def fromFile(self, path, format='yaml', create=True):
     self.filepath = path

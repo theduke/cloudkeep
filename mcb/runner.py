@@ -1,12 +1,15 @@
-import logging
+import logging, time
+
 from mcb.outputs import OutputPipe
 from mcb import ProgressHandler
+from mcb.config import Config
 
 class Runner(object):
 
   def __init__(self, config=None):
     self.services = []
     self.outputs = []
+    self.mode = Config.MODE_MIRROR
 
     self.logger = logging.getLogger('mcb')
 
@@ -20,6 +23,7 @@ class Runner(object):
 
     self.services = config.getServices()
     self.outputs = config.getOutputs()
+    self.mode = config.mode
 
   def saveConfig(self):
     self.config.importServices(self.services)
@@ -30,6 +34,17 @@ class Runner(object):
   def setProgressHandler(self, handler):
     self.progressHandler = handler
 
+  def getOutputPrefix(self):
+    if self.mode == Config.MODE_MIRROR:
+      prefix = 'mirror'
+    elif self.mode == Config.MODE_FULL:
+      localtime   = time.localtime()
+      prefix = 'full/' + time.strftime("%Y_%m_%d_%H_%M_%S", localtime)
+    else:
+      raise Exception("Unknown mode: " + self.mode)
+
+    return prefix
+
   def run(self):
     if not len(self.outputs):
       raise Exception("No outputs configured")
@@ -38,6 +53,8 @@ class Runner(object):
     pipe = OutputPipe(self.outputs)
     pipe.setLogger(self.logger)
     pipe.prepare()
+
+    outputPrefix = self.getOutputPrefix()
 
     self.logger.info('Backing up {count} services'.format(
       count=len(self.services)
@@ -49,7 +66,8 @@ class Runner(object):
 
       service.validate()
 
-      pipe.setPrefix(service.getOutputPrefix())
+      prefix = outputPrefix + '/' + service.getOutputPrefix()
+      pipe.setPrefix(prefix)
       service.setLogger(self.logger)
       service.setOutput(pipe)
       service.setProgressHandler(self.progressHandler)
