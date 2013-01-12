@@ -29,7 +29,7 @@ class Filesystem(Output):
     f.write(data)
     f.close()
 
-  def get(self, name, bucket=None, mode='r'):
+  def get(self, name, bucket=None):
     path = self.path + os.path.sep  + self.prefix
 
     if bucket:
@@ -38,7 +38,8 @@ class Filesystem(Output):
     path += os.path.sep + name
 
     if os.path.isfile(path):
-      return open(path, mode)
+      f = open(path, 'r')
+      return f.read()
     else:
       return False
 

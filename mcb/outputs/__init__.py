@@ -19,7 +19,7 @@ class Output(Plugin):
   def set(self, name, data, bucket=None, mode='w'):
     raise Exception('add method not implemented')
 
-  def get(self, name, bucket=None, mode='r'):
+  def get(self, name, bucket=None):
     raise Exception('get method not implemented in ' + self.getClassName())
 
   def getStream(self, name, bucket=None, mode='r+'):
@@ -71,8 +71,8 @@ class OutputPipe(object):
     for output in self.outputs:
       f = output.set(name, data, bucket, mode)
 
-  def get(self, name, bucket=None, mode='r'):
-    return [output.get(name, bucket, mode) for output in self.outputs]
+  def get(self, name, bucket=None):
+    return [output.get(name, bucket) for output in self.outputs]
 
   def getStream(self, name, bucket=None, mode='r+'):
     pipe = FilePipe()
