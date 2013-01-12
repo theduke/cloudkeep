@@ -29,7 +29,7 @@ class DropboxOutput(Output, DropboxMixin):
   def set(self, name, data, bucket=None, mode='w'):
     path = self.getPath(name, bucket)
 
-    fileObj = data if isinstance(data, file) else StringIO.StringIO(data)
+    fileObj = data if hasattr(data, 'read') else StringIO.StringIO(data)
     self.client.put_file(path, fileObj, overwrite=True)
 
   def get(self, name, bucket=None):
