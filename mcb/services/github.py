@@ -30,6 +30,7 @@ Options: [none, tar, gz, bz2]
 """)
 
     self.addConfig('issues', 'bool', default=True)
+    self.addConfig('user_repos', default=None, description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
 
   def getPluginOutputPrefix(self):
     return self.username
@@ -80,6 +81,7 @@ Options: [none, tar, gz, bz2]
 
     fileObject = self.output.getStream(fileName, name, 'w')
     createArchive(path, compression, fileObject)
+    fileObject.close()
 
   def saveIssues(self, name):
     path = '/repos/theduke/' + name + '/issues'
@@ -89,7 +91,14 @@ Options: [none, tar, gz, bz2]
 
   def runBackup(self):
     self.tmpPath = self.getTmpPath()
+
+    allowedRepos = self.user_repos.split(',') if self.user_repos else None
+
     for repo in self.getRepos():
+      # if repos are limited to user_repos, skip as neccessary
+      if allowedRepos and repo['name'] not in allowedRepos:
+        continue
+
       if self.mirror_repos:
         self.mirrorRepo(repo['name'], repo['git_url'])
 
