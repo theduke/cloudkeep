@@ -39,6 +39,9 @@ class Config(object):
 
     self.services = new
 
+  def addOutput(self, output):
+    self.outputs.append(output)
+
   def getOutputs(self):
     return [self.buildPlugin(conf) for conf in self.outputs]
 

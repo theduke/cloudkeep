@@ -90,6 +90,13 @@ class Plugin(object):
 
     return valid
 
+  def getConfigItem(self, name):
+    for item in self.config:
+      if item['name'] == name:
+        return item
+
+    return None
+
   def getConfig(self):
     config = dict(
       (conf['name'], self.__dict__[conf['name']]) for conf in self.config

@@ -36,7 +36,7 @@ class Cli(object):
     subparsers = parser.add_subparsers(title='commands')
 
     #############
-    #ADD SERVICE
+    # add-service
     #############
 
     addService = subparsers.add_parser('add-service',
@@ -50,6 +50,20 @@ class Cli(object):
     addService.set_defaults(func=self.addServiceCmd)
 
     #############
+    # add-output
+    #############
+
+    addOutput = subparsers.add_parser('add-output',
+      help='Add a new output to be backed up.'
+    )
+
+    help = "Type of the output, available: "
+    help += '[' +  '|'.join(utils.getAllOutputs().keys())
+    addOutput.add_argument('--type', help=help)
+
+    addOutput.set_defaults(func=self.addOutputCmd)
+
+    #############
     # RUN
     #############
 
@@ -61,7 +75,6 @@ class Cli(object):
     return parser
 
   def prompt(self, msg, validate=None, default=None):
-
     if validate == 'bool':
       msg += ' [yes/no]'
     elif type(validate) == list:
@@ -75,7 +88,7 @@ class Cli(object):
       elif type(default) == str:
         defMsg = default if len(default) else '""'
       else:
-        default
+        defMsg = default
 
       msg += ' [default: {d}]'.format(d=defMsg)
 
@@ -124,19 +137,31 @@ class Cli(object):
     return config
 
   def addServiceCmd(self, args):
-    services = utils.getAllServices()
+    self.addPluginConfig('service', args)
+
+  def addOutputCmd(self, args):
+    self.addPluginConfig('output', args)
+
+  def addPluginConfig(self, pluginType, args):
+    """
+    Helper function for adding an output or a service to the config.
+    pluginType is either "service" or "output"
+    """
+
+    method = getattr(utils, 'getAll' + pluginType.capitalize() + 's')
+    items = method()
 
     if not args.type:
-      args.type = self.prompt('Choose service type', services.keys())
+      args.type = self.prompt('Choose ' + pluginType + ' type', items.keys())
 
-    if not args.type in services:
-      self.error('Unknown service type: ' + args.type)
+    if not args.type in items:
+      self.error('Unknown ' + pluginType + ' type: ' + args.type)
 
-    service = services[args.type]()
+    plugin = items[args.type]()
 
-    serviceConfig = {}
+    pluginConfig = {}
 
-    for conf in service.config:
+    for conf in plugin.config:
       if conf['internal']: continue
 
       name = conf['name']
@@ -146,16 +171,18 @@ class Cli(object):
         msg = '{name} ({help})'.format(name=name, help=conf['description'])
         val = self.prompt(msg, conf['typ'], conf['default'])
 
-      serviceConfig[name] = val
+      pluginConfig[name] = val
 
     config = self.getConfig(args.config)
 
-    serviceConfig['className'] = service.getClassName()
-    config.addService(serviceConfig)
+    pluginConfig['className'] = plugin.getClassName()
+
+    method = getattr(config, 'add' + pluginType.capitalize())
+    method(pluginConfig)
 
     config.toFile()
 
-    print("Service added successfully")
+    print(pluginType.capitalize() + " added successfully")
 
   def getCliRunner(self, config):
     handler = CliProgressHandler()

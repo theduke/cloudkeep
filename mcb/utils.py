@@ -84,6 +84,18 @@ def getAllServices():
 
   return services
 
+def getAllOutputs():
+  outputs = {}
+
+  import mcb.outputs
+  loadAllRecusive(mcb.outputs)
+  for item in itersubclasses(mcb.outputs.Output):
+    name = item().name
+    if name:
+      outputs[name] = item
+
+  return outputs
+
 def is_number(s):
   try:
       float(s)

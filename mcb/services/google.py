@@ -67,9 +67,9 @@ class GmailService(EmailImapService):
 
     self.name = 'google.gmail'
 
-    self.host = 'imap.gmail.com'
-    self.port = 993
-    self.ssl = True
+    self.getConfigItem('host')['default'] = 'imap.gmail.com'
+    self.getConfigItem('port')['default'] = 993
+    self.getConfigItem('ssl')['default'] = True
 
   def getFolders(self):
     return ['[Gmail]/All Mail']
