@@ -6,12 +6,14 @@ from mcb.outputs import OutputPipe
 class Config(object):
 
   def __init__(self):
-    self.services = {}
-    self.outputs = {}
+    self.services = []
+    self.outputs = []
 
     self.filepath = None
 
-  def buildPlugin(self, name, conf):
+  def buildPlugin(self, conf):
+    name = conf['className']
+
     moduleName = name[:name.rfind('.')]
     className = name[name.rfind('.')+1:]
 
@@ -23,33 +25,31 @@ class Config(object):
 
     return instance
 
-  def addService(self, className, conf):
-    self.services[className] = conf
+  def addService(self, conf):
+    self.services.append(conf)
 
   def getServices(self):
-    return [self.buildPlugin(name, conf) for name, conf in self.services.items()]
+    return [self.buildPlugin(conf) for conf in self.services]
 
   def importServices(self, services):
-    new = {}
+    new = []
 
     for service in services:
-      name = service.getClassName()
-      new[name] = service.getConfig()
+      new.append(service.getConfig())
 
     self.services = new
 
   def getOutputs(self):
-    return [self.buildPlugin(name, conf) for (name, conf) in self.outputs.items()]
+    return [self.buildPlugin(conf) for conf in self.outputs]
 
   def getOutputPipe(self):
     return OutputPipe(self.getOutputs())
 
   def importOutputs(self, outputs):
-    new = {}
+    new = []
 
     for output in outputs:
-      name = output.getClassName()
-      new[name] = output.getConfig()
+      new.append(output.getConfig())
 
     self.outputs = new
 

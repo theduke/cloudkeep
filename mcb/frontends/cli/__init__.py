@@ -136,20 +136,23 @@ class Cli(object):
 
     serviceConfig = {}
 
-    for name, conf in service.config.items():
+    for conf in service.config:
       if conf['internal']: continue
+
+      name = conf['name']
 
       val = None
       if not val:
         msg = '{name} ({help})'.format(name=name, help=conf['description'])
-
         val = self.prompt(msg, conf['typ'], conf['default'])
 
       serviceConfig[name] = val
 
     config = self.getConfig(args.config)
 
-    config.addService(service.getClassName(), serviceConfig)
+    serviceConfig['className'] = service.getClassName()
+    config.addService(serviceConfig)
+
     config.toFile()
 
     print("Service added successfully")

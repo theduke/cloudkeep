@@ -3,7 +3,7 @@ import os, shutil
 class Plugin(object):
 
   def __init__(self):
-    self.config = {}
+    self.config = []
     self.logger = None
     self.progressHandler = None
 
@@ -30,6 +30,15 @@ class Plugin(object):
   def setProgressHandler(self, handler):
     self.progressHandler = handler
 
+  def getConfig(self, name):
+    config = None
+
+    for conf in self.config:
+      if conf['name'] == name:
+        config = conf
+        break
+
+    return config
 
   def addConfig(self, name, typ='string', default=None, description='', internal=False):
     types = ['string', 'number', 'int', 'float', 'bool']
@@ -37,16 +46,18 @@ class Plugin(object):
     if not typ in types:
       raise Exception('Unknown config type: ' + typ)
 
-    self.config[name] = {
+    self.config.append({
+      'name': name,
       'typ': typ,
       'default': default,
       'description': description,
       'internal': internal
-    }
+    })
     self.__dict__[name] = default
 
   def validate(self):
-    for name, conf in self.config.items():
+    for conf in self.config:
+      name = conf['name']
       value = self.__dict__[name]
 
       if value == None:
@@ -81,11 +92,13 @@ class Plugin(object):
 
   def getConfig(self):
     config = dict(
-      (name, self.__dict__[name]) for (name, conf) in self.config.items()
+      (conf['name'], self.__dict__[conf['name']]) for conf in self.config
     )
 
     # remove name, should not be in save
     del config['name']
+
+    config['className'] = self.getClassName()
 
     return config
 
