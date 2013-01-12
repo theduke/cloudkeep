@@ -47,6 +47,8 @@ sudo pip install mycloudbackup
 Dependencies
 ============
 
+These will automaticall be installed by pip.
+
 Required python packages:
 
 * pyyaml - For config files (http://pyyaml.org)
