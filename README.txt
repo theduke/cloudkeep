@@ -5,13 +5,13 @@ We use dozens of cloud services on a daily basis. Most of them are a wonderful
 thing, making our lifes easier and bringing great functionality.
 
 But should you trust these services with all your valued private data?
-What if one of those services should should loose your data?
+What if one of those services should go down, cease operations, or be hacked?
 
-This program gets all of your precious data from the cloud service, and
+This program gets all of your precious data from  your cloud services, and
 backs it up to a storage of your choice (your own hard drive, Dropbox, Amazon S3,
 an FTP Server, ...) so you always have a backup if something happens.
 
-You can select the services you use, and back them up to the output of your
+You can select the services you use, and back them up to the storage of your
 choice.
 
 MCB works from the command line, and also has a GUI.
@@ -49,6 +49,18 @@ You can install MyCloudBackup by using setuptools easy_install or pip
 Install setuptools: http://pypi.python.org/pypi/setuptools
 
 sudo pip install mycloudbackup
+
+Usage - GUI
+===========
+
+Just start the GUI with mcb-gui and enjoy.
+
+Usage - CLI
+===========
+
+...
+
+================================================================================
 
 Development
 ===========
