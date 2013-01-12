@@ -201,15 +201,18 @@ class Cli(object):
 
     print("Runnin all backups")
 
-    try:
+    if args.verbose:
       runner.run()
-    except Exception as e:
-      if args.verbose:
-        raise e
-      else:
-        print("An error occured: " + e.message)
+    else:
+      try:
+        runner.run()
+      except Exception as e:
+        if args.verbose:
+          raise e
+        else:
+          print("An error occured: " + e.message)
 
-      return
+        return
 
     print("All backups finished")
 
