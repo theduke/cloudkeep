@@ -36,8 +36,8 @@ class Runner(object):
 
     # create output pipe
     pipe = OutputPipe(self.outputs)
-    pipe.prepare()
     pipe.setLogger(self.logger)
+    pipe.prepare()
 
     self.logger.info('Backing up {count} services'.format(
       count=len(self.services)
