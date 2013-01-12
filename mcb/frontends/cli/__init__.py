@@ -152,6 +152,8 @@ class Cli(object):
     pluginType is either "service" or "output"
     """
 
+    config = self.getConfig(args.config)
+
     method = getattr(utils, 'getAll' + pluginType.capitalize() + 's')
     items = method()
 
@@ -177,7 +179,9 @@ class Cli(object):
 
       pluginConfig[name] = val
 
-    config = self.getConfig(args.config)
+    if pluginConfig['id'] == 'auto':
+      id = plugin.name + '_' + str(len(getattr(config, pluginType + 's')))
+      pluginConfig['id'] = id
 
     pluginConfig['className'] = plugin.getClassName()
 
@@ -219,7 +223,7 @@ class Cli(object):
         else:
           print("An error occured: " + e.message)
 
-        return
+        sys.exit(1)
 
     print("All backups finished")
 

@@ -8,6 +8,7 @@ class Plugin(object):
     self.progressHandler = None
 
     self.addConfig('name', internal=True)
+    self.addConfig('id', description="""Set an id to identify.""", default='auto')
 
     self.setup()
 
