@@ -50,6 +50,10 @@ class CalendarService(GoogleHack):
   def runBackup(self):
     self.login()
     response = self.session.get(self.exportUrl)
+
+    if response.url.find('ServiceLogin') != -1:
+      raise Exception('Could not log in to Google. Check credentials.')
+
     self.output.set('calendars.zip', response.content)
 
 class GmailService(EmailImapService):
