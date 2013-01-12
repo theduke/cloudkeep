@@ -4,14 +4,18 @@ MyCloudBackup
 Back up data from all of your cloud services to a local or remote storate(like
 Filesystem, Amazon S3, Dropbox, ...).
 
-MCB will have a command line client and a cross-platform GUI.
+MCB works from the command line, and also has a GUI.
 
 MCB is under the New BSD License (see LICENSE.txt).
+
+Bug reports, suggestions and contributions are very welcome.
+Development happens at https://github.com/theduke/mycloudbackup .
+
 
 Services
 ========
 
-MyCloudBackup supports the following Services:
+MyCloudBackup supports the following cloud services:
 
 * Google Gmail - Back up all your Gmail mails into mbox files, does not preserv tags
 * Google Calendar - Back up all your calendars as ical files
@@ -31,6 +35,14 @@ MyCloudBackup supports the following outputs (backup targets):
 Soon to come:
 * Amazon S3
 ...
+
+Installation
+============
+
+You can install MyCloudBackup by using setuptools easy_install or pip
+Install setuptools: http://pypi.python.org/pypi/setuptools
+
+sudo pip install mycloudbackup
 
 Dependencies
 ============
@@ -54,7 +66,9 @@ outputs.
 
 Will write documentation on how to write plugins soon.
 For now, just copy an existing one and adapt it.
+
 Starting point for services: mcb/services/github.py
+               for outputs:  mcb/outputs/dropbox.py
 
 Contributors
 ============

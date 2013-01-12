@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 
-from distutils.core import setup
+try:
+    from setuptools import setup
+except:
+    from distutils.core import setup
 
 setup(
-    name='MyCloudBackup',
+    name='mycloudbackup',
     version='0.1dev',
     author='Christoph Herzog',
     author_email='chris@theduke.at',
