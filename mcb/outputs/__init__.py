@@ -1,5 +1,43 @@
+import os
+import StringIO
 
 from mcb import Plugin
+
+class FakeFile(file):
+
+  def __init__(self, name, bucket, mode, output, tmpPath):
+    localPath = tmpPath + '/' + (bucket + name).replace('/', '_')
+
+    super(FakeFile, self).__init__(localPath, 'w+b')
+
+    if mode not in ['w', 'w+']:
+      # we have to download the dropbox file first
+      remoteFile = output.getStream(name, bucket, 'r')
+      chunk = 10000
+      while True:
+        data = remoteFile.read(chunk)
+        if not data:
+          break
+        self.write(data)
+
+      # now we have to seek to the right position, depending on mode
+      if mode == 'r+':
+        self.seek(0)
+      elif mode in ['a', 'a+']:
+        self.seek(0, 2)
+      else:
+        raise Exception('Unknown mode: {m}'.format(m=mode))
+
+    self.outputName = name
+    self.outputBucket = bucket
+    self.output = output
+
+  def close(self):
+    self.flush()
+    self.seek(0, 0)
+    self.output.set(self.outputName, self, bucket=self.outputBucket)
+    super(FakeFile, self).close()
+
 
 class Output(Plugin):
 
@@ -7,12 +45,24 @@ class Output(Plugin):
     super(Output, self).__init__()
     self.prefix = ''
 
+    self.tmpPath = self.getTmpPath()
+
   # do all neccessary setup
   def prepare(self):
     pass
 
   def setPrefix(self, prefix):
     self.prefix = prefix
+
+  def getPath(self, name, bucket=None, sep=os.path.sep):
+    path = self.path + sep + self.prefix
+
+    if bucket:
+      path += sep + bucket
+
+    path += sep + name
+
+    return path
 
   # add a new data unit to the store
   # returns a file-like object that can be written to
@@ -24,6 +74,7 @@ class Output(Plugin):
 
   def getStream(self, name, bucket=None, mode='r+'):
     raise Exception('getStream method not implemented in ' + self.getClassName())
+
 
 class FilePipe(object):
 
@@ -43,6 +94,7 @@ class FilePipe(object):
   def close(self):
     for f in self.files:
       f.close()
+
 
 class OutputPipe(object):
 
