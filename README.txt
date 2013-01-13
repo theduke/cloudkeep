@@ -28,6 +28,7 @@ MyCloudBackup supports the following cloud services:
 * Dropbox - Back up your entire Dropbox folder
 * Email (Imap) - Back up any IMAP-accesible email account into widely used mbox files
 * Github - Copy all your repositories and their issues
+* Evernote - Back up all your notes and files
 
 Outputs
 =======
@@ -85,6 +86,9 @@ DropboxService:
 
 GithubService:
 * GitPython: https://github.com/gitpython-developers
+
+EvernoteService:
+* evernote: https://github.com/evernote/evernote-sdk-python
 
 Plugin System
 =============

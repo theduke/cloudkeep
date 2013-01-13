@@ -21,6 +21,8 @@ setup(
         "pyyaml",
         "requests",
         "dropbox", # for DropboxService
-        "gitpython" #for GithubService
+        "gitpython", #for GithubService
+        "evernote", # for EvernoteService
+        "oauth2" # for EvernoteService
     ],
 )
