@@ -138,9 +138,9 @@ class ProgressHandler(object):
     self.onTaskActivated(name, self.tasks[name])
 
   def setProgress(self, progress):
-    self.tasks[self.activateTask] = progress
+    self.tasks[self.activeTask] = progress
 
-    self.onProgressChanged(self.activateTask, progress)
+    self.onProgressChanged(self.activeTask, progress)
 
   def finishTask(self, name):
     self.onTaskFinished(name)

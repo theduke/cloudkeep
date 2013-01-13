@@ -15,8 +15,7 @@ class CliProgressHandler(ProgressHandler):
     print("Starting task: " + name)
 
   def onProgressChanged(self, name, progress):
-    # implement in child classes
-    pass
+    print("Progress: {p}%".format(p=int(progress*100)))
 
   def onTaskFinished(self, name):
     print("Finished task: " + name)
