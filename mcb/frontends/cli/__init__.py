@@ -132,6 +132,14 @@ class Cli(Frontend):
     else:
       return result
 
+  def promptConfigField(self, msg, plugin, config):
+    validate = config['options'].keys() if config['options'] else config['typ']
+
+    result = self.prompt(msg, validate, config['default'])
+    valid = plugin.validateField(config, result)
+
+    return result if valid else self.promptConfigField(msg, plugin, config)
+
   def error(self, msg):
     print("Error: " + msg)
     sys.exit(1)
@@ -171,7 +179,7 @@ class Cli(Frontend):
       val = None
       if not val:
         msg = '{name} ({help})'.format(name=name, help=conf['description'])
-        val = self.prompt(msg, conf['typ'], conf['default'])
+        val = self.promptConfigField(msg, plugin, conf)
 
       pluginConfig[name] = val
 

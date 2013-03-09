@@ -20,7 +20,7 @@ class FacebookService(Service):
     self.addConfig('username', 'Username')
     self.addConfig('password', 'Password')
 
-    self.addConfig('token', default='', internal=True)
+    self.addConfig('token', 'Token', default='', internal=True)
 
     self.client = None
 

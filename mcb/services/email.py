@@ -24,7 +24,11 @@ class EmailImapService(Service):
     self.addConfig('username', 'Username')
     self.addConfig('password', 'Password')
     self.addConfig('ssl', 'SSL', 'bool', False)
-    self.addConfig('compression', 'Compression', 'string', 'none', description="""
+    self.addConfig('compression', 'Compression', 'string', 'none', options={
+        'none': 'None',
+        'gzip': 'GZIP',
+        'bzip2': 'BZIP2'
+      }, description="""
 Compression to use for the mbox files.
 Options: none(default), gzip, bzip2
 """)

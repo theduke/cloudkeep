@@ -13,10 +13,10 @@ class Plugin(object):
     self.logger = None
     self.progressHandler = None
 
-    self.addConfig('name', internal=True)
-    self.addConfig('pretty_name', internal=True)
+    self.addConfig('name', 'Name', internal=True)
+    self.addConfig('pretty_name', 'Pretty Name', internal=True)
 
-    self.addConfig('id', description="""Set an id to identify.""", default='auto')
+    self.addConfig('id', 'Id', description="""Set an name to identify this account.""", default='auto')
 
     self.setup()
 
@@ -58,7 +58,21 @@ class Plugin(object):
 
     return val
 
-  def addConfig(self, name, pretty_name, typ='string', default=None, description='', internal=False):
+  def setConfigValue(self, name, value):
+    self.__dict__[name] = value
+
+  def addConfig(self, name, pretty_name, typ='string', default=None, description='', internal=False, options=None):
+    """
+    Set up a new config field.
+    typ can be one of the mcb.Plugin.TYPE_* values.
+
+    Internal config values are not set by the user manually but by the plugin.
+    This could be an API token acquired.
+
+    If the value should only be one of a list of options, set options 
+    to an dict with identifiers as keys and pretty names as values. 
+    The plugin will only validate if the value is on of those.
+    """
     types = [
       self.TYPE_STRING, 
       self.TYPE_NUMBER, 
@@ -76,11 +90,14 @@ class Plugin(object):
       'typ': typ,
       'default': default,
       'description': description,
-      'internal': internal
+      'internal': internal,
+      'options': options
     })
     self.__dict__[name] = default
 
-  def validate(self):
+  def validate(self, raiseException=True):
+    errors = []
+
     for conf in self.config:
       name = conf['name']
       value = self.__dict__[name]
@@ -91,16 +108,25 @@ class Plugin(object):
           cl=self.__class__.__name__
         ))
 
-      valid = self.validateField(conf['typ'], value)
+      valid = self.validateField(conf, value)
 
       if not valid:
-        raise Exception('Config validation failed: field {name}, value {val}'.format(
-          name=name,
-          val=value
-        ))
+        if raiseException:
+          raise Exception('Config validation failed: field {name}, value {val}'.format(
+            name=name,
+            val=value
+          ))
+        else:
+          errors.append(name)
 
-  def validateField(self, typ, value):
+      return errors
+
+  def validateField(self, item, value):
     valid = None
+    typ = item['typ']
+
+    if item['options'] and not (value in item['options'].keys()):
+      return False
 
     if typ == self.TYPE_STRING:
       valid = type(value) == str

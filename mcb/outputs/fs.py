@@ -7,8 +7,8 @@ class Filesystem(Output):
   def setup(self):
     self.name = 'filesystem'
 
-    self.addConfig('path')
-    self.addConfig('gzip', 'bool', False)
+    self.addConfig('path', 'Path')
+    self.addConfig('gzip', 'GZIP', 'bool', False)
 
   def prepare(self):
     pass

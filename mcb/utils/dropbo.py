@@ -5,12 +5,12 @@ class DropboxMixin(object):
   def setup(self):
     self.name = 'dropbox'
 
-    self.addConfig('app_key', default='1ykd6aqi5m05m0t')
-    self.addConfig('app_secret', default='qs5ga0gd61fxuz3')
+    self.addConfig('app_key', 'App Key', default='1ykd6aqi5m05m0t')
+    self.addConfig('app_secret', 'App Secret', default='qs5ga0gd61fxuz3')
 
-    self.addConfig('username')
-    self.addConfig('access_token', default='')
-    self.addConfig('access_token_secret', default='')
+    self.addConfig('username', 'Username')
+    self.addConfig('access_token', 'Access Token', default='')
+    self.addConfig('access_token_secret', 'Access Token Secret', default='')
 
     self.session = None
     self.client = None

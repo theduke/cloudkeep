@@ -11,7 +11,7 @@ class DropboxOutput(Output, DropboxMixin):
     Output.setup(self)
     DropboxMixin.setup(self)
 
-    self.addConfig('dropbox_base_directory', default='MyCloudBackup')
+    self.addConfig('dropbox_base_directory', 'Dropbox Base Directory', default='MyCloudBackup')
 
   def prepare(self):
     self.client = self.getClient()

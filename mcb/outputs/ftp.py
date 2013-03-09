@@ -10,13 +10,13 @@ class FtpOutput(Output):
   def setup(self):
     self.name = 'ftp'
 
-    self.addConfig('host')
-    self.addConfig('port', 'int', default=21)
-    self.addConfig('ssl', 'bool', default=False)
-    self.addConfig('username', default=None)
-    self.addConfig('password', default='')
+    self.addConfig('host', 'Host')
+    self.addConfig('port', 'Port', 'int', default=21)
+    self.addConfig('ssl', 'SSL', 'bool', default=False)
+    self.addConfig('username', 'Username', default=None)
+    self.addConfig('password', 'Password', default='')
 
-    self.addConfig('path', description="The path on the server where backups should be stored")
+    self.addConfig('path', 'Path', description="The path on the server where backups should be stored")
 
     self.ftp = None
 

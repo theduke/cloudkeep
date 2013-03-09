@@ -24,7 +24,11 @@ class GithubService(Service):
     self.addConfig('user', 'User', default='')
 
     self.addConfig('mirror_repos', 'Mirror repositories', 'bool', default=True)
-    self.addConfig('compress_repos', 'Compress repos', default=False, description="""
+    self.addConfig('compress_repos', 'Compress repos', default=False, options={
+        'none': 'None',
+        'gzip': 'GZIP',
+        'bz2': 'bz2'
+      }, description="""
 Compress the repository into a tar archive, with optional bzip2/gzip compression.
 Compression is required for non FileSystem outputs.
 Options: [none, tar, gz, bz2]
