@@ -2,9 +2,15 @@
 import argparse, sys, os
 import logging
 
+# Fix Python 2.x.
+try: input = raw_input
+except: pass
+
 from mcb.runner import Runner
 from mcb import ProgressHandler, utils
 from mcb.config import Config
+from mcb.frontends import Frontend
+
 
 class CliProgressHandler(ProgressHandler):
 
@@ -20,8 +26,7 @@ class CliProgressHandler(ProgressHandler):
   def onTaskFinished(self, name):
     print("Finished task: " + name)
 
-
-class Cli(object):
+class Cli(Frontend):
 
   def __init__(self):
     pass
@@ -97,7 +102,7 @@ class Cli(object):
 
     msg += ': '
 
-    result = raw_input(msg)
+    result = input(msg)
 
     # if nothing entered, and default is set, we can skip the rest
     if not result and default is not None:
@@ -130,14 +135,6 @@ class Cli(object):
   def error(self, msg):
     print("Error: " + msg)
     sys.exit(1)
-
-  def getConfig(self, path):
-    path = os.path.expanduser(path)
-
-    config = Config()
-    config.fromFile(path)
-
-    return config
 
   def addServiceCmd(self, args):
     self.addPluginConfig('service', args)
@@ -229,10 +226,8 @@ class Cli(object):
   def run(self, args):
     parser = self.getParser()
     args = parser.parse_args(args)
-    args.func(args)
 
-if __name__ == '__main__':
-  args = ['add-service']
-
-  cli = Cli()
-  cli.run(args)
+    if 'func' in args:
+      args.func(args)
+    else:
+      parser.print_help()
