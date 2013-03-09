@@ -66,10 +66,35 @@ def itersubclasses(cls, _seen=None):
             for sub in itersubclasses(sub, _seen):
                 yield sub
 
+def parseFormSubmit(session, response, formId):
+  """From a requests session and response, parse a form, get its data out and
+  send the request.
+  """
+
+  soup = BeautifulSoup(r.text)
+
+  data = {}
+
+  form = soup.find('form', id=formId)
+
+  for inp in form.find_all('input', type='hidden'):
+    data[inp.attrs['name']] = inp.attrs['value']
+
+  data['email'] = self.username
+  data['pass'] = self.password
+
+  url = form.attrs['action']
+
+  response = session.post(url, data)
+
 def loadAllRecusive(package):
   prefix = package.__name__ + "."
   for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
+    try:    
       module = __import__(modname, fromlist="*")
+    except Exception as e:
+      print("Could not load " + modname)
+      print(e)
       #print "Imported", module
 
 def getAllServices():
@@ -77,6 +102,7 @@ def getAllServices():
 
   import mcb.services
   loadAllRecusive(mcb.services)
+
   for item in itersubclasses(mcb.services.Service):
     name = item().name
     if name:

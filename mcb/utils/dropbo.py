@@ -31,8 +31,8 @@ class DropboxMixin(object):
       request_token = sess.obtain_request_token()
       url = sess.build_authorize_url(request_token)
 
-      print "url:", url
-      print "Please visit this website and press the 'Allow' button, then hit 'Enter' here."
+      print("url: " + url)
+      print("Please visit this website and press the 'Allow' button, then hit 'Enter' here.")
       raw_input()
 
       access_token = sess.obtain_access_token(request_token)
