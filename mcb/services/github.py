@@ -16,21 +16,22 @@ class GithubService(Service):
 
   def setup(self):
     self.name = 'github'
+    self.pretty_name = 'Github'
 
-    self.addConfig('username', default='')
-    self.addConfig('password', default='')
+    self.addConfig('username', 'Username', default='')
+    self.addConfig('password', 'Password', default='')
 
-    self.addConfig('user', default='')
+    self.addConfig('user', 'User', default='')
 
-    self.addConfig('mirror_repos', 'bool', default=True)
-    self.addConfig('compress_repos', default=False, description="""
+    self.addConfig('mirror_repos', 'Mirror repositories', 'bool', default=True)
+    self.addConfig('compress_repos', 'Compress repos', default=False, description="""
 Compress the repository into a tar archive, with optional bzip2/gzip compression.
 Compression is required for non FileSystem outputs.
 Options: [none, tar, gz, bz2]
 """)
 
-    self.addConfig('issues', 'bool', default=True)
-    self.addConfig('user_repos', default='', description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
+    self.addConfig('issues', 'Issues', 'bool', default=True)
+    self.addConfig('user_repos', 'User repositories', default='', description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
 
   def getPluginOutputPrefix(self):
     return self.username

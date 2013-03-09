@@ -6,12 +6,21 @@
 # The code does not carry a license, but Vitaly gave personal permission.
 
 import os, sys
-import httplib
 import time
-import Cookie
 import uuid
-from urllib import urlencode, unquote
-from urlparse import urlparse
+
+try:
+    # python 3
+    from http import client as httplib
+    from http import cookies as Cookie
+    from urllib import parse as urlparse
+    from urllib.parse import urlencode, unquote
+except:
+    # python 2
+    import httplib
+    import Cookie
+    import urlparse
+    from urllib import urlencode, unquote
 
 class Struct:
     def __init__(self, **entries):

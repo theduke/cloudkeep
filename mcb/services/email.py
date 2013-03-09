@@ -7,7 +7,7 @@
 # Bob Ippolito
 # Rui Carmo
 
-import os, sys, gc, time, re, sha
+import os, sys, gc, time, re, hashlib
 import imaplib
 import mailbox
 
@@ -17,13 +17,14 @@ class EmailImapService(Service):
 
   def setup(self):
     self.name = 'email.imap'
+    self.pretty_name = 'Email (IMAP)'
 
-    self.addConfig('host')
-    self.addConfig('port', 'int', 143)
-    self.addConfig('username')
-    self.addConfig('password')
-    self.addConfig('ssl', 'bool', False)
-    self.addConfig('compression', 'string', 'none', description="""
+    self.addConfig('host', 'Host')
+    self.addConfig('port', 'Port', 'int', 143)
+    self.addConfig('username', 'Username')
+    self.addConfig('password', 'Password')
+    self.addConfig('ssl', 'SSL', 'bool', False)
+    self.addConfig('compression', 'Compression', 'string', 'none', description="""
 Compression to use for the mbox files.
 Options: none(default), gzip, bzip2
 """)
@@ -150,7 +151,7 @@ Options: none(default), gzip, bzip2
       header = data[0][1].strip()
       header = header.replace('\r\n','\t')
 
-      msg_id = '<' + self.UUID + '.' + sha.sha(header).hexdigest() + '>'
+      msg_id = '<' + self.UUID + '.' + hashlib.sha1(header.encode('utf-8')).hexdigest() + '>'
 
     return msg_id
 

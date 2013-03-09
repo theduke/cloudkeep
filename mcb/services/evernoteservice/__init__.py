@@ -1,7 +1,16 @@
 import os, time, sys
 import json, csv
 from datetime import datetime
-import urllib, urlparse
+
+import urllib
+  
+try:
+  # python 3
+  from urllib import parse as urlparse
+except:
+  # python 2
+  import urlparse
+
 from pprint import pprint
 import mimetypes
 
@@ -31,19 +40,20 @@ class EvernoteService(Service):
 
   def setup(self):
     self.name = 'evernote'
+    self.pretty_name = 'Evernote'
 
-    self.addConfig('token', internal=True, default='')
+    self.addConfig('token', 'Token', internal=True, default='')
 
-    self.addConfig('username')
-    self.addConfig('password')
+    self.addConfig('username', 'Username')
+    self.addConfig('password', 'Password')
 
-    self.addConfig('add_note_files', 'bool', default=False,
-      description="Create a file for each note with the note body")
+    self.addConfig('add_note_files', 'Save each note to own file', 'bool', default=False,
+      description="Create a file for each note with the note body in the Evernote XML format.")
 
-    self.addConfig('create_json', 'bool', default=True,
-      description="Create a json file with note data")
+    self.addConfig('create_json', 'Save to JSON', 'bool', default=True,
+      description="Create a json file with note data.")
 
-    self.addConfig('create_csv', 'bool', default=True,
+    self.addConfig('create_csv', 'Save to CSV', 'bool', default=True,
       description="Create a csv file with note data")
 
     #self.token = 'S=s1:U=7d551:E=1438936cbd4:C=13c31859fd5:P=1cd:A=en-devtoken:H=fe3a88a49092f79a6213cb01a4ae0521'

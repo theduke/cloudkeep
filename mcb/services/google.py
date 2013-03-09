@@ -10,8 +10,8 @@ class GoogleHack(Service):
 
   def __init__(self):
     super(GoogleHack, self).__init__()
-    self.addConfig('email')
-    self.addConfig('password')
+    self.addConfig('email', 'Email')
+    self.addConfig('password', 'Password')
 
   def getPluginOutputPrefix(self):
     return self.email.replace('@', '_at_')
@@ -46,6 +46,7 @@ class CalendarService(GoogleHack):
 
   def setup(self):
     self.name = 'google.calendar'
+    self.pretty_name = 'Google Calendar'
 
   def runBackup(self):
     self.login()
