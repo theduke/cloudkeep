@@ -1,5 +1,14 @@
 import os
-import StringIO
+
+try:
+  # python 2
+  import StringIO
+except:
+  # python 3
+  import io
+  from io import StringIO
+
+  file = io.TextIOBase
 
 from mcb import Plugin
 
