@@ -2,12 +2,20 @@ import os, shutil
 
 class Plugin(object):
 
+  TYPE_BOOL = 'bool'
+  TYPE_STRING = 'string'
+  TYPE_NUMBER = 'number'
+  TYPE_INT = 'int'
+  TYPE_FLOAT = 'float'
+
   def __init__(self):
     self.config = []
     self.logger = None
     self.progressHandler = None
 
     self.addConfig('name', internal=True)
+    self.addConfig('pretty_name', internal=True)
+
     self.addConfig('id', description="""Set an id to identify.""", default='auto')
 
     self.setup()
@@ -41,14 +49,30 @@ class Plugin(object):
 
     return config
 
-  def addConfig(self, name, typ='string', default=None, description='', internal=False):
-    types = ['string', 'number', 'int', 'float', 'bool']
+  def getConfigValue(self, name, injectDefault=False):
+    val = self.__dict__[name]
+    item = self.getConfigItem(name)
+
+    if not val and injectDefault and item['default']:
+      val = item['default']
+
+    return val
+
+  def addConfig(self, name, pretty_name, typ='string', default=None, description='', internal=False):
+    types = [
+      self.TYPE_STRING, 
+      self.TYPE_NUMBER, 
+      self.TYPE_INT, 
+      self.TYPE_FLOAT, 
+      self.TYPE_BOOL
+    ]
 
     if not typ in types:
       raise Exception('Unknown config type: ' + typ)
 
     self.config.append({
       'name': name,
+      'pretty_name': pretty_name,
       'typ': typ,
       'default': default,
       'description': description,
@@ -78,15 +102,15 @@ class Plugin(object):
   def validateField(self, typ, value):
     valid = None
 
-    if typ == 'string':
+    if typ == self.TYPE_STRING:
       valid = type(value) == str
-    elif typ == 'numeric':
+    elif typ == self.TYPE_NUMBER:
       valid = type(value) in [int, float]
-    elif typ == 'int':
+    elif typ == self.TYPE_INT:
       valid = type(value) == int
-    elif typ == 'float':
+    elif typ == self.TYPE_FLOAT:
       valid = type(value) == float
-    elif typ == 'bool':
+    elif typ == self.TYPE_BOOL:
       valid = type(value) == bool
 
     return valid
