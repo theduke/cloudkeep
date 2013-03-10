@@ -12,9 +12,6 @@ class DropboxService(Service, DropboxMixin):
     Service.setup(self)
     DropboxMixin.setup(self)
 
-    self.name = 'dropbox'
-    self.pretty_name = 'Dropbox'
-
     self.meta = {}
 
   def getPluginOutputPrefix(self):

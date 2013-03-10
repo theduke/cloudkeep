@@ -16,13 +16,17 @@ class Plugin(object):
     self.addConfig('name', 'Name', internal=True)
     self.addConfig('pretty_name', 'Pretty Name', internal=True)
 
-    self.addConfig('id', 'Id', description="""Set an name to identify this account.""", default='auto')
-
     self.setup()
 
   def getClassName(self):
     name = self.__class__.__module__ + '.' + self.__class__.__name__
     return name
+
+  def getId(self):
+    raise Exception('getId() not implemented in ' + self.getClassName())
+
+  def getPrettyId(self):
+    raise Exception('getPrettyId() not implemented in ' + self.getClassName())
 
   def setup(self):
     pass

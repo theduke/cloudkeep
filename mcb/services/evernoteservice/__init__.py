@@ -60,6 +60,12 @@ class EvernoteService(Service):
 
     self.tagMap = {}
 
+  def getId(self):
+    return self.name + '_' + self.username
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.username
+
   def getPluginOutputPrefix(self):
     return self.username
 

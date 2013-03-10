@@ -30,7 +30,16 @@ class Config(object):
     return instance
 
   def addService(self, conf):
+    if isinstance(conf, mcb.Plugin):
+      conf = conf.getConfig()
+
     self.services.append(conf)
+
+  def updateService(self, index, conf):
+    if isinstance(conf, mcb.Plugin):
+      conf = conf.getConfig()
+
+    self.services[index] = conf
 
   def getServices(self):
     return [self.buildPlugin(conf) for conf in self.services]
@@ -43,8 +52,17 @@ class Config(object):
 
     self.services = new
 
-  def addOutput(self, output):
-    self.outputs.append(output)
+  def addOutput(self, conf):
+    if isinstance(conf, mcb.Plugin):
+      conf = conf.getConfig()
+
+    self.outputs.append(conf)
+
+  def updateOutput(self, index, conf):
+    if isinstance(conf, mcb.Plugin):
+      conf = conf.getConfig()
+
+    self.outputs[index] = conf
 
   def getOutputs(self):
     return [self.buildPlugin(conf) for conf in self.outputs]

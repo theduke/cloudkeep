@@ -44,9 +44,16 @@ class CalendarService(GoogleHack):
 
   exportUrl = 'https://www.google.com/calendar/exporticalzip'
 
+
   def setup(self):
     self.name = 'google.calendar'
     self.pretty_name = 'Google Calendar'
+
+  def getId(self):
+    return self.name + '_' + self.email
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.email 
 
   def runBackup(self):
     self.login()
@@ -71,10 +78,17 @@ class GmailService(EmailImapService):
     super(GmailService, self).setup()
 
     self.name = 'google.gmail'
+    self.pretty_name = 'Google Mail'
 
     self.getConfigItem('host')['default'] = 'imap.gmail.com'
     self.getConfigItem('port')['default'] = 993
     self.getConfigItem('ssl')['default'] = True
+
+  def getId(self):
+    return self.name + '_' + self.username
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.username 
 
   def getFolders(self):
     return ['[Gmail]/All Mail']

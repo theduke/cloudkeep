@@ -4,6 +4,7 @@ class DropboxMixin(object):
 
   def setup(self):
     self.name = 'dropbox'
+    self.pretty_name = 'Dropbox'
 
     self.addConfig('app_key', 'App Key', default='1ykd6aqi5m05m0t')
     self.addConfig('app_secret', 'App Secret', default='qs5ga0gd61fxuz3')
@@ -14,6 +15,12 @@ class DropboxMixin(object):
 
     self.session = None
     self.client = None
+
+  def getId(self):
+    return self.name + '_' + self.username
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.username
 
   def getPluginOutputPrefix(self):
     return self.username

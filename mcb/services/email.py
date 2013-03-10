@@ -36,6 +36,12 @@ Options: none(default), gzip, bzip2
     self.imap = None
     self.delimiter = None
 
+  def getId(self):
+    return self.name + '_' + self.username
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.username
+
   def getPluginOutputPrefix(self):
     return self.host + '.' + self.username.replace('@', '_at_')
 

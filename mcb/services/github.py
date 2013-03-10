@@ -37,6 +37,13 @@ Options: [none, tar, gz, bz2]
     self.addConfig('issues', 'Issues', 'bool', default=True)
     self.addConfig('user_repos', 'User repositories', default='', description="""By default, all repos of the user are mirrored. Specify a comma-separated list if you want to limit it to certain ones.""")
 
+
+  def getId(self):
+    return self.name + '_' + self.username
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.username
+    
   def getPluginOutputPrefix(self):
     return self.username
 
