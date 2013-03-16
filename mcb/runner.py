@@ -1,4 +1,5 @@
 import logging, time
+import threading
 
 from mcb.outputs import OutputPipe
 from mcb import ProgressHandler
@@ -59,10 +60,15 @@ class Runner(object):
     self.logger.info('Backing up {count} services'.format(
       count=len(self.services)
     ))
+
+    # Add all services as tasks so proper progress can be calculated.
+    for service in self.services:
+      self.progressHandler.addTask(service.pretty_name)
+
     for service in self.services:
       self.logger.info('Backing up ' + service.name)
 
-      self.progressHandler.startTask('Backing up ' + service.name)
+      self.progressHandler.startTask(service.pretty_name)
 
       service.validate()
 
@@ -74,11 +80,18 @@ class Runner(object):
 
       service.run()
 
-      self.progressHandler.finishTask('Backing up ' + service.name)
+      self.progressHandler.finishTask(service.pretty_name)
 
     self.logger.info('All done')
 
     self.logger.info('Saving data...')
     self.saveConfig()
 
+class ThreadRunner(threading.Thread, Runner):
+  
+  def __init__(self, config=None):
+    threading.Thread.__init__(self)
+    Runner.__init__(self, config)
 
+  def run(self):
+    Runner.run(self)
