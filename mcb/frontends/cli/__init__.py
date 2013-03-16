@@ -22,7 +22,7 @@ class CliProgressHandler(ProgressHandler):
 
   def onProgressChanged(self, name, progress):
     print("Progress: {p}%".format(p=int(progress*100)))
-
+ 
   def onTaskFinished(self, name):
     print("Finished task: " + name)
 
@@ -182,10 +182,6 @@ class Cli(Frontend):
         val = self.promptConfigField(msg, plugin, conf)
 
       pluginConfig[name] = val
-
-    if pluginConfig['id'] == 'auto':
-      id = plugin.name + '_' + str(len(getattr(config, pluginType + 's')))
-      pluginConfig['id'] = id
 
     pluginConfig['className'] = plugin.getClassName()
 
