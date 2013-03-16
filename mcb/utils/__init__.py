@@ -2,6 +2,7 @@ from subprocess import *
 import tarfile
 import sys, os
 import pkgutil
+import re
 
 def call(args):
   p = Popen(args, stdout=PIPE, stderr=PIPE)
@@ -128,3 +129,38 @@ def is_number(s):
       return True
   except ValueError:
       return False
+
+def getPlural(noun):
+  # (pattern, search, replace) regex english plural rules tuple
+  rule_tuple = (
+  ('[ml]ouse$', '([ml])ouse$', '\\1ice'), 
+  ('child$', 'child$', 'children'), 
+  ('booth$', 'booth$', 'booths'), 
+  ('foot$', 'foot$', 'feet'), 
+  ('ooth$', 'ooth$', 'eeth'), 
+  ('l[eo]af$', 'l([eo])af$', 'l\\1aves'), 
+  ('sis$', 'sis$', 'ses'), 
+  ('man$', 'man$', 'men'), 
+  ('ife$', 'ife$', 'ives'), 
+  ('eau$', 'eau$', 'eaux'), 
+  ('lf$', 'lf$', 'lves'), 
+  ('[sxz]$', '$', 'es'), 
+  ('[^aeioudgkprt]h$', '$', 'es'), 
+  ('(qu|[^aeiou])y$', 'y$', 'ies'), 
+  ('$', '$', 's')
+  )
+
+  rules = []
+  for line in rule_tuple:
+    pattern, search, replace = line
+    rules.append(lambda word: re.search(pattern, word) and re.sub(search, replace, word))
+
+  for rule in rules:
+      result = rule(noun)
+      if result: 
+          return result
+
+if __name__ == '__main__':
+  print(getPlural('service'))
+  print(getPlural('output'))
+  
