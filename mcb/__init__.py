@@ -196,8 +196,19 @@ class ProgressHandler(object):
 
     self.onProgressChanged(self.activeTask, progress)
 
+  def getFinishedTasks(self):
+    finished = [value for name, value in self.tasks.items() if value == 100]
+    return finished
+
+  def getTaskProgress(self):
+    return len(self.getFinishedTasks()) / len(self.tasks)
+
   def finishTask(self, name):
-    self.onTaskFinished(name)
+    if not name in self.tasks:
+      raise Exception("Task " + name + " does not exist")
+
+    self.tasks[name] = 100
+    self.onTaskFinished(name, self.getTaskProgress())
 
   def onTaskAdded(self, name, progress):
     # implement in child class
@@ -211,6 +222,6 @@ class ProgressHandler(object):
     # implement in child classes
     pass
 
-  def onTaskFinished(self, name):
+  def onTaskFinished(self, name, tasks_progress):
     # implement in child classes
     pass
