@@ -6,9 +6,16 @@ class Filesystem(Output):
 
   def setup(self):
     self.name = 'filesystem'
+    self.pretty_name = 'Filesystem'
 
     self.addConfig('path', 'Path')
     self.addConfig('gzip', 'GZIP', 'bool', False)
+
+  def getId(self):
+    return self.name + '_' + self.path
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.path
 
   def prepare(self):
     pass

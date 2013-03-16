@@ -9,6 +9,7 @@ class FtpOutput(Output):
 
   def setup(self):
     self.name = 'ftp'
+    self.pretty_name = 'FTP'
 
     self.addConfig('host', 'Host')
     self.addConfig('port', 'Port', 'int', default=21)
@@ -19,6 +20,12 @@ class FtpOutput(Output):
     self.addConfig('path', 'Path', description="The path on the server where backups should be stored")
 
     self.ftp = None
+
+  def getId(self):
+    return self.name + '_' + host
+
+  def getPrettyId(self):
+    return self.pretty_name + ' - ' + self.host
 
   def prepare(self):
     self.connect()
