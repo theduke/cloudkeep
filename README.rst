@@ -48,25 +48,51 @@ Soon to come:
 Installation
 ============
 
-You can install MyCloudBackup by using setuptools easy_install or pip
+You can install MyCloudBackup by using setuptools pip
 Install setuptools: http://pypi.python.org/pypi/setuptools
 
+On linux systems you would do this:
+
 sudo pip install mycloudbackup
+
+---------------------------------
+-IMPORTANT NOTE - PYTHON VERSION-
+---------------------------------
+
+MCB runs well with Python3, but many of the dependencies exist only for Python2.
+So you should run MCB with python2.
+
+If you have multible pythons on your system,
+be sure to use the Python2 pip for installing.
+If your systems default version is Python3,
+you also need to start MCB with the python2 executable.
+
+for example:
+
+python2 mcb
+python2 mcb-gui
+
+Usage
+=====
 
 Usage - GUI
 ===========
 
-Just start the GUI with mcb-gui and enjoy.
+Start the GUI with mcb-gui
+
+The GUI is a work in progress, but the essentials work.
+You can already add new services and run the backup process.
 
 Usage - CLI
 ===========
 
-...
+Run mcb -h to show help.
+You can easily add configuration and run backups with the CLI.
 
 ================================================================================
 
-Development
-===========
+Feedback and Development
+========================
 
 MCB is under the New BSD License (see LICENSE.txt).
 
