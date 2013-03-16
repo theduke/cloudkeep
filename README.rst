@@ -1,3 +1,4 @@
+=============
 MyCloudBackup
 =============
 
@@ -29,6 +30,7 @@ MyCloudBackup supports the following cloud services:
 * Email (Imap) - Back up any IMAP-accesible email account into widely used mbox files
 * Github - Copy all your repositories and their issues
 * Evernote - Back up all your notes and files
+* Facebook - Back up your Facebook conversations, wall posts, photos, etc.
 
 Outputs
 =======

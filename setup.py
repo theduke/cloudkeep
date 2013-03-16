@@ -23,6 +23,7 @@ setup(
         "dropbox", # for DropboxService
         "gitpython", #for GithubService
         "evernote", # for EvernoteService
-        "oauth2" # for EvernoteService
+        "oauth2", # for EvernoteService
+        "facebook-sdk", # for FacebookService
     ],
 )

@@ -23,7 +23,7 @@ class CliProgressHandler(ProgressHandler):
   def onProgressChanged(self, name, progress):
     print("Progress: {p}%".format(p=int(progress*100)))
  
-  def onTaskFinished(self, name):
+  def onTaskFinished(self, name, task_progress):
     print("Finished task: " + name)
 
 class Cli(Frontend):

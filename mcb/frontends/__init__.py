@@ -14,9 +14,6 @@ class Frontend(object):
 	    config.fromFile(path)
 
 	    return config
-	    
-class CliProgressHandler(ProgressHandler):
-  pass
 
 def getCliRunner(config):
   handler = CliProgressHandler()
