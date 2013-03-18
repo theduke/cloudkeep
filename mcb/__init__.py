@@ -1,5 +1,7 @@
 import os, shutil
 
+from pprint import pprint
+
 class Plugin(object):
 
   TYPE_BOOL = 'bool'
@@ -42,16 +44,6 @@ class Plugin(object):
 
   def setProgressHandler(self, handler):
     self.progressHandler = handler
-
-  def getConfig(self, name):
-    config = None
-
-    for conf in self.config:
-      if conf['name'] == name:
-        config = conf
-        break
-
-    return config
 
   def getConfigValue(self, name, injectDefault=False):
     val = self.__dict__[name]
@@ -128,18 +120,23 @@ class Plugin(object):
   def validateField(self, item, value):
     valid = None
     typ = item['typ']
+    
+    # if this value is allowed to be empty (default is set)
+    # and it is an empty string, it is valid
+    if value == '' and item['default'] != None:
+        return True
 
     if item['options'] and not (value in item['options'].keys()):
       return False
 
     if typ == self.TYPE_STRING:
-      valid = type(value) == str
+      valid = type(value) == str and len(value) > 0
     elif typ == self.TYPE_NUMBER:
-      valid = type(value) in [int, float]
+      valid = value.replace('.','',1).isdigit() if type(value) == str else (type(value) in [int, float])
     elif typ == self.TYPE_INT:
-      valid = type(value) == int
+      valid = value.isdigit() if type(value) == str else (type(value) == int)
     elif typ == self.TYPE_FLOAT:
-      valid = type(value) == float
+      valid = value.replace('.','',1).isdigit() if type(value) == str else (type(value) == float)
     elif typ == self.TYPE_BOOL:
       valid = type(value) == bool
 
@@ -166,6 +163,13 @@ class Plugin(object):
 
   def setConfig(self, data):
     for name, val in data.items():
+      config_item = self.getConfigItem(name)
+
+      # If no proper value is given and default is avail, use that
+      valid = self.validateField(config_item, val)
+      if not valid and config_item['default'] != None:
+        val = config_item['default'
+        ]
       self.__dict__[name] = val
 
   def setLogger(self, logger):
@@ -201,7 +205,7 @@ class ProgressHandler(object):
     return finished
 
   def getTaskProgress(self):
-    return len(self.getFinishedTasks()) / len(self.tasks)
+    return len(self.getFinishedTasks()) / float(len(self.tasks))
 
   def finishTask(self, name):
     if not name in self.tasks:
@@ -209,6 +213,11 @@ class ProgressHandler(object):
 
     self.tasks[name] = 100
     self.onTaskFinished(name, self.getTaskProgress())
+
+  def finishBackup(self):
+    """Call this when the runner is done."""
+
+    self.onBackupFinished()
 
   def onTaskAdded(self, name, progress):
     # implement in child class
@@ -223,5 +232,9 @@ class ProgressHandler(object):
     pass
 
   def onTaskFinished(self, name, tasks_progress):
+    # implement in child classes
+    pass
+
+  def onBackupFinished(self):
     # implement in child classes
     pass
