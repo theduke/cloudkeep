@@ -113,8 +113,10 @@ Options: [none, tar, gz, bz2]
     self.tmpPath = self.getTmpPath()
 
     allowedRepos = self.user_repos.split(',') if self.user_repos else None
-
-    for repo in self.getRepos():
+    
+    repos = self.getRepos()
+    index = 1
+    for repo in repos:
       # if repos are limited to user_repos, skip as neccessary
       if allowedRepos and repo['name'] not in allowedRepos:
         continue
@@ -124,3 +126,6 @@ Options: [none, tar, gz, bz2]
 
         if repo['has_issues']:
           self.saveIssues(repo['name'])
+      
+      self.progressHandler.setProgress(index/float(len(repos)))
+      index += 1
