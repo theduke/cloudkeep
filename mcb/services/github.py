@@ -1,4 +1,5 @@
 import json, os
+import shutil
 from pprint import pprint
 
 from mcb.services import Service
@@ -82,18 +83,25 @@ Options: [none, tar, gz, bz2]
       raise Exception('Could not clone {repo}: {o}'.format(
         repo=url, o=result[1] + "\n\n" + result[2]
       ))
+    
+    fileName = name + '.git'
+    
+    if self.compress_repos != 'none':
+        # Repo should be compressed.
+        # We only have to write a single file here.
+      
+        self.logger.debug('Compressing repo into archive...')
+        fileName += '.tar'
 
-    # create archive and write it
-    self.logger.debug('Compressing repo into archive...')
-
-    fileName = name + '.git.tar'
-
-    if self.compress_repos != 'tar': fileName += '.' + self.compress_repos
-    compression = self.compress_repos if self.compress_repos != 'tar' else None
-
-    fileObject = self.output.getStream(fileName, name, 'w')
-    createArchive(path, compression, fileObject)
-    fileObject.close()
+        if self.compress_repos != 'tar': fileName += '.' + self.compress_repos
+        compression = self.compress_repos if self.compress_repos != 'tar' else None
+        
+        fileObject = self.output.getStream(fileName, name, 'w')
+        createArchive(path, compression, fileObject)
+        fileObject.close()
+    else:
+        # Copy the repo file by file.
+        self.output.setFromLocalPath(fileName, path, name)
 
   def saveIssues(self, name):
     path = '/repos/theduke/' + name + '/issues'
