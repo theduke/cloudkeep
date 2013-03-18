@@ -4,6 +4,8 @@ from mcb.services.email import EmailImapService
 import requests
 from bs4 import BeautifulSoup
 
+from pprint import pprint
+
 class GoogleHack(Service):
 
   loginUrl = 'https://accounts.google.com/ServiceLogin'
@@ -80,9 +82,20 @@ class GmailService(EmailImapService):
     self.name = 'google.gmail'
     self.pretty_name = 'Google Mail'
 
-    self.getConfigItem('host')['default'] = 'imap.gmail.com'
-    self.getConfigItem('port')['default'] = 993
-    self.getConfigItem('ssl')['default'] = True
+    self.host = 'imap.gmail.com'
+    host = self.getConfigItem('host')
+    host['default'] = self.host
+    host['internal'] = True
+
+    self.port = 993
+    port = self.getConfigItem('port')
+    port['default'] = 993
+    port['internal'] = True
+
+    self.ssl = True
+    ssl = self.getConfigItem('ssl')
+    ssl['default'] = True
+    ssl['internal'] = True
 
   def getId(self):
     return self.name + '_' + self.username
