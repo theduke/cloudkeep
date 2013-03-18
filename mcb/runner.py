@@ -1,5 +1,6 @@
 import logging, time
 import threading
+import traceback
 
 from mcb.outputs import OutputPipe
 from mcb import ProgressHandler
@@ -78,7 +79,14 @@ class Runner(object):
       service.setOutput(pipe)
       service.setProgressHandler(self.progressHandler)
 
-      service.run()
+      try:
+        service.run()
+      except Exception as e:
+        self.logger.error('Error in plugin {p}: {e}'.format(
+          p=service.name,
+          e=e
+        ))
+        print(traceback.format_exc(e))
 
       self.progressHandler.finishTask(service.pretty_name)
 
@@ -86,6 +94,8 @@ class Runner(object):
 
     self.logger.info('Saving data...')
     self.saveConfig()
+
+    self.progressHandler.finishBackup()
 
 class ThreadRunner(threading.Thread, Runner):
   
