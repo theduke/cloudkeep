@@ -6,12 +6,12 @@ class DropboxMixin(object):
     self.name = 'dropbox'
     self.pretty_name = 'Dropbox'
 
-    self.addConfig('app_key', 'App Key', default='1ykd6aqi5m05m0t')
-    self.addConfig('app_secret', 'App Secret', default='qs5ga0gd61fxuz3')
+    self.addConfig('app_key', 'App Key', default='1ykd6aqi5m05m0t', internal=True)
+    self.addConfig('app_secret', 'App Secret', default='qs5ga0gd61fxuz3', internal=True)
 
-    self.addConfig('username', 'Username')
-    self.addConfig('access_token', 'Access Token', default='')
-    self.addConfig('access_token_secret', 'Access Token Secret', default='')
+    self.addConfig('username', 'Email')
+    self.addConfig('access_token', 'Access Token', default='', internal=True)
+    self.addConfig('access_token_secret', 'Access Token Secret', default='', internal=True)
 
     self.session = None
     self.client = None
@@ -37,10 +37,10 @@ class DropboxMixin(object):
     if not self.access_token:
       request_token = sess.obtain_request_token()
       url = sess.build_authorize_url(request_token)
-
-      print("url: " + url)
-      print("Please visit this website and press the 'Allow' button, then hit 'Enter' here.")
-      raw_input()
+      
+      msg = "url: " + url + "\n"
+      msg += "Please visit this website and press the 'Allow' button, then hit 'Enter' here."
+      self.progressHandler.showPrompt(msg)
 
       access_token = sess.obtain_access_token(request_token)
       self.logger.info('Acquired access token: {token}/{secret}'.format(
