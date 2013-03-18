@@ -36,6 +36,9 @@ Options: none(default), gzip, bzip2
     self.imap = None
     self.delimiter = None
 
+    self.total_msg_count = 0
+    self.finished_msg_count = 0
+
   def getId(self):
     return self.name + '_' + self.username
 
@@ -270,6 +273,7 @@ Options: none(default), gzip, bzip2
         error=data
       ))
     msgCount = int(data[0])
+    self.total_msg_count += msgCount
 
     stream = self.output.getStream(filename, mode='ab')
 
@@ -289,15 +293,32 @@ Options: none(default), gzip, bzip2
         data = self.downloadMessage(msgId, index)
         stream.write(data)
 
+      self.finished_msg_count += 1
+      self.progressHandler.setProgress(self.finished_msg_count / float(self.total_msg_count))
+
     stream.close()
 
   def runBackup(self):
+    self.logger.debug('Running email backup from {h}:{p}'.format(
+      h=self.host,
+      p=self.port
+    ))
+
     if self.ssl:
       imap = imaplib.IMAP4_SSL(self.host, self.port)
     else:
       imap = imaplib.IMAP4(self.host, self.port)
 
-    imap.login(self.username, self.password)
+    self.logger.debug('Logging in with user {u}'.format(
+      u=self.username
+    ))
+
+    flag = imap.login(self.username, self.password)
+    if not flag:
+      self.logger.error('Could not login - wrong credentials?')
+      return
+
+    self.logger.debug('Logged in successfully')
 
     self.imap = imap
 
