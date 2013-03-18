@@ -25,7 +25,10 @@ class Config(object):
     clas = getattr(mod, className)
 
     instance = clas()
-    instance.setConfig(conf)
+
+    conf_copy = conf.copy()
+    del conf_copy['className']
+    instance.setConfig(conf_copy)
 
     return instance
 
