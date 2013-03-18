@@ -16,6 +16,7 @@ class FacebookService(Service):
   def setup(self):
     self.name = 'facebook'
     self.pretty_name = 'Facebook'
+    self.enabled = False
 
     self.addConfig('username', 'Username')
     self.addConfig('password', 'Password')

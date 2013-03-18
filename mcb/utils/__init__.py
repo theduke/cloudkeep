@@ -98,27 +98,29 @@ def loadAllRecusive(package):
       print(e)
       #print "Imported", module
 
-def getAllServices():
+def getAllServices(enabledOnly=True):
   services = {}
 
   import mcb.services
   loadAllRecusive(mcb.services)
 
   for item in itersubclasses(mcb.services.Service):
-    name = item().name
-    if name:
+    inst = item()
+    name = inst.name
+    if name and (not enabledOnly or inst.enabled):
       services[name] = item
 
   return services
 
-def getAllOutputs():
+def getAllOutputs(enabledOnly=True):
   outputs = {}
 
   import mcb.outputs
   loadAllRecusive(mcb.outputs)
   for item in itersubclasses(mcb.outputs.Output):
-    name = item().name
-    if name:
+    inst = item()
+    name = inst.name
+    if name and (not enabledOnly or inst.enabled):
       outputs[name] = item
 
   return outputs

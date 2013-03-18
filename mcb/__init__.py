@@ -11,6 +11,7 @@ class Plugin(object):
   TYPE_FLOAT = 'float'
 
   def __init__(self):
+    self.enabled = True
     self.config = []
     self.logger = None
     self.progressHandler = None
