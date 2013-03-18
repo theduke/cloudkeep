@@ -94,6 +94,10 @@ class Runner(object):
 
     self.logger.info('Saving data...')
     self.saveConfig()
+    
+    self.logger.debug('Deleting tmp dir')
+    for output in self.outputs:
+      output.getTmpPath()
 
     self.progressHandler.finishBackup()
 
