@@ -50,12 +50,21 @@ class ScreenRunBackups(base.Screen):
     column_progress = Gtk.TreeViewColumn("Progress", renderer_progress,
             value=1)
     treeview.append_column(column_progress)
-
+    
+    handler.screen = self
+    handler.app = self.app
     handler.liststore = liststore
     handler.list_iter = first_store_item
     handler.gui_finished_callback = lambda: self.on_finished()
 
     return mainBox
+  
+  def testDialog(self):
+    dialog = Gtk.MessageDialog(self.app.mainWindow, 0, Gtk.MessageType.INFO,
+        Gtk.ButtonsType.OK, "Can not run backups")
+    dialog.format_secondary_text("Test")
+    dialog.run()
+    dialog.destroy()
 
   def on_start(self):
     self.runner.start()

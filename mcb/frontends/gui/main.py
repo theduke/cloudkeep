@@ -30,9 +30,12 @@ class Gui(Frontend):
     win.connect("delete-event", Gtk.main_quit)
 
     GObject.threads_init()
-
+    
     win.showScreen('Home')
+    
+    Gdk.threads_enter()
     Gtk.main()
+    Gdk.threads_leave()
 
   def updateConfig(self):
     self.config.importServices(self.services)

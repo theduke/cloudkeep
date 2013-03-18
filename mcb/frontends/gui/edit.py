@@ -56,7 +56,7 @@ class ScreenPluginEdit(Screen):
 
       value = plugin.getConfigValue(name)
 
-      label = Gtk.Label(name + ':')
+      label = Gtk.Label(conf['pretty_name'] + ':')
       label.set_tooltip_text(conf['description'])
       form.attach(label, 0, index, 1, 1)
 

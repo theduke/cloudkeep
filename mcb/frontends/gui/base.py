@@ -16,6 +16,7 @@ class GuiProgressHandler(ProgressHandler):
 
   def __init__(self):
     ProgressHandler.__init__(self)
+    self.app = None
     # list store model that contains data for table
     self.liststore = None
     # iter for currently active backup 
@@ -23,6 +24,22 @@ class GuiProgressHandler(ProgressHandler):
 
     # ui update callback after finishing
     self.gui_finished_callback = None
+  
+  def showPrompt(self, msg, expectInput=False):
+    Gdk.threads_enter()
+    
+    dialog = Gtk.MessageDialog(self.app.mainWindow, 0, Gtk.MessageType.INFO,
+    Gtk.ButtonsType.OK, "Backup prompt")
+    dialog.format_secondary_text(msg)
+    dialog.run()
+    dialog.destroy()
+    
+    Gdk.threads_leave()
+    
+    return {
+      'done': True,
+      'response': ''
+    }
 
   def onTaskAdded(self, name, progress):
     print("added task: " + name)

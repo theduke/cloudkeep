@@ -181,6 +181,9 @@ class ProgressHandler(object):
   def __init__(self):
     self.tasks = {}
     self.activeTask = None
+    
+  def showPrompt(self, msg, exceptInput=False):
+    raise Exception('showPrompt not implemented')
 
   def addTask(self, name, active=False, progress=0):
     self.tasks[name] = progress

@@ -13,7 +13,17 @@ from mcb.frontends import Frontend
 
 
 class CliProgressHandler(ProgressHandler):
-
+  
+  def showPrompt(self, msg, expectInput=False):
+    print(msg)
+    print("Hit enter when you are done")
+    response = raw_input()
+    
+    return {
+      'done': True,
+      'response': response
+    }
+    
   def onTaskAdded(self, name, progress):
     pass
 
