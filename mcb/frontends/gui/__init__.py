@@ -12,15 +12,14 @@ from mcb import Plugin
 from mcb import ProgressHandler
 from mcb.runner import ThreadRunner
 
+from mcb.frontends.gui.edit import ScreenPluginEdit
+
 currentModule = sys.modules[__name__]
 
 class GuiProgressHandler(ProgressHandler):
 
 	def __init__(self):
 		ProgressHandler.__init__(self)
-		# main progress bar
-		self.mainProgress = None
-		
 		# list store model that contains data for table
 		self.liststore = None
 		# iter for currently active backup 
@@ -45,14 +44,6 @@ class GuiProgressHandler(ProgressHandler):
 		Gdk.threads_leave()
 
 	def onTaskFinished(self, name, task_progress):
-		Gdk.threads_enter()
-		self.mainProgress.set_fraction(task_progress)
-		self.mainProgress.set_text('{a}/{b}'.format(
-			a=len(self.getFinishedTasks()),
-			b=len(self.tasks)
-		))
-		Gdk.threads_leave()
-		
 		self.list_iter = self.liststore.iter_next(self.list_iter)
 		print("Finished task: " + name)
 
@@ -295,24 +286,20 @@ class ScreenRunBackups(Screen):
 
 		mainBox.add(Gtk.Label('Running Backups...'))
 		
-		# main progress bar
-		self.mainProgress = progress = Gtk.ProgressBar()
-		progress.gui_finished_callback = lambda: self.on_finished()
-		progress.set_show_text(True)
-		progress.set_text('0/' + str(len(self.app.services)))
-		progress.set_fraction(0.0)
-		mainBox.pack_start(progress, True, False, 0)
+		self.startButton = startButton = Gtk.Button(label='Start')
+		startButton.connect('clicked', lambda button: self.on_start())
+		mainBox.add(startButton)
 		
 		self.runner = runner = self.app.getRunner()
 		handler = runner.progressHandler
 		
 		# Set up the backup list with progressbars
 		
-		liststore = Gtk.ListStore(str, int)
+		liststore = Gtk.ListStore(str, float)
 		first_store_item = None
 		
 		for service in runner.services:
-			list_iter = liststore.append([service.getPrettyId(), 0])
+			list_iter = liststore.append([service.getPrettyId(), 0.0])
 			if not first_store_item: first_store_item = list_iter
 			
 		treeview = Gtk.TreeView(model=liststore)
@@ -324,17 +311,12 @@ class ScreenRunBackups(Screen):
 		
 		renderer_progress = Gtk.CellRendererProgress()
 		column_progress = Gtk.TreeViewColumn("Progress", renderer_progress,
-            value=1, inverted=2)
+            value=1)
 		treeview.append_column(column_progress)
 
-		handler.mainProgress = progress
 		handler.liststore = liststore
 		handler.list_iter = first_store_item
 		handler.gui_finished_callback = lambda: self.on_finished()
-
-		self.startButton = startButton = Gtk.Button(label='Start')
-		startButton.connect('clicked', lambda button: self.on_start())
-		mainBox.add(startButton)
 
 		return mainBox
 
@@ -343,7 +325,7 @@ class ScreenRunBackups(Screen):
 
 		# Add an abort button
 		self.mainBox.remove(self.startButton)
-		cancelButton = Gtk.Button(label='Abort')
+		self.cancelButton = cancelButton = Gtk.Button(label='Abort')
 		cancelButton.connect('clicked', lambda button: self.abort())
 		self.mainBox.add(cancelButton)
 		self.mainBox.show_all()
@@ -352,9 +334,11 @@ class ScreenRunBackups(Screen):
 		pass
 
 	def on_finished(self):
-		self.app.mainWindow.showScreen(ScreenBackupsFinished, data={
-			'runner': None
-		})
+		self.mainBox.remove(self.cancelButton)
+		homeButton = Gtk.Button(label='Home')
+		homeButton.connect('clicked', lambda button: self.app.mainWindow.showScreen('Home'))
+		self.mainBox.add(homeButton)
+		self.mainBox.show_all()
 
 class ScreenBackupsFinished(Screen):
 
@@ -369,161 +353,6 @@ class ScreenBackupsFinished(Screen):
 		mainBox.add(button)
 
 		return mainBox
-
-class ScreenPluginEdit(Screen):
-
-	def __init__(self, app, data):
-		Screen.__init__(self, app)
-
-		self.pluginType = data['type']
-		self.plugin = data['plugin']
-		self.isNew = (type(self.plugin) == str)
-
-		self.pluginContainer = app.services if self.pluginType == 'service' else app.outputs
-
-
-	def build(self):
-		"""
-		Edit a service.
-		If service is a string, it is the service type and a new one 
-		will be created.
-		If it is a config object, an existing one is edited.
-		"""
-
-
-		if self.isNew:
-			# get a fresh instance of the plugin
-
-			if self.pluginType == 'service':
-				self.plugin = plugin =  self.app.serviceTypes[self.plugin]()
-			elif self.pluginType == 'output':
-				self.plugin = plugin =  self.app.outputTypes[self.plugin]()
-		else:
-			plugin = self.plugin
-
-		mainWidget = mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-		mainBox.add(Gtk.Label(plugin.pretty_name))
-
-		form = Gtk.Grid()
-		form.set_column_spacing(30)
-		form.set_row_spacing(10)
-
-		mainBox.add(form)
-
-		self.fields = fields = {}
-		self.fieldValidLabels = {}
-
-		index = 0
-		for conf in plugin.config:
-			if conf['internal']: continue
-
-			name = conf['name']
-			typ = conf['typ']
-
-			value = plugin.getConfigValue(name)
-
-			label = Gtk.Label(name + ':')
-			label.set_tooltip_text(conf['description'])
-			form.attach(label, 0, index, 1, 1)
-
-			item = None
-
-			if typ == Plugin.TYPE_BOOL:
-				item = Gtk.CheckButton()
-				item.set_active(value)
-			if typ in [Plugin.TYPE_STRING, Plugin.TYPE_NUMBER, Plugin.TYPE_INT, Plugin.TYPE_FLOAT]:
-
-				if conf['options']:
-					# Generate a select widget
-
-					store = Gtk.ListStore(str, str)
-					for option_name, pretty_name in conf['options'].items():
-						activeiter = store.append([option_name, pretty_name])
-
-					item = Gtk.ComboBox.new_with_model(store)
-					renderer = Gtk.CellRendererText()
-					item.pack_start(renderer, True)
-					item.add_attribute(renderer, "text", 1)
-				else:
-					# plain text input
-
-					item = Gtk.Entry()
-					field_value = value or conf['default'] or ''
-					item.set_text(str(field_value))
-
-			item.set_tooltip_text(conf['description'])
-
-			# set eb property to allow for border spec in save()
-			item.eb = None
-
-			fields[name] = item
-			form.attach(item, 1, index, 1, 1)
-
-			self.fieldValidLabels[name] = validLabel = Gtk.Label('')
-			form.attach(validLabel, 2, index, 1, 1)
-
-			index += 1
-
-		controlBox = Gtk.Box(spacing=30)
-		mainBox.add(controlBox)
-
-		saveButton = Gtk.Button(label='Save')
-		saveButton.connect('clicked', self.save)
-		controlBox.add(saveButton)
-
-		cancelButton = Gtk.Button(label='Cancel')
-		cancelButton.connect('clicked', lambda button: self.app.mainWindow.showScreen('Home'))
-		controlBox.add(cancelButton)
-
-		return mainWidget
-
-	def save(self, button):
-		data = {}
-
-		allValid = True
-
-		for name, widget in self.fields.items():
-			val = None
-
-			if type(widget) == Gtk.Entry:
-				val = widget.get_text()
-			elif type(widget) == Gtk.CheckButton:
-				val = widget.get_active()
-			elif type(widget) == Gtk.ComboBox:
-				selected = widget.get_active_iter()
-				if selected != None:
-					model = widget.get_model()
-					val = model[selected][0]	
-			else:
-				raise Exception('Unknown widget type')
-
-			data[name] = val
-			print('validating: ' + name)
-			print(val)
-			if not self.plugin.validateField(self.plugin.getConfigItem(name), val):
-				allValid = False
-
-				#widget.eb = eb = Gtk.EventBox()
-				# Gtk.StateType.GTK_STATE_NORMAL
-				#eb.modify_bg(Gdk.Color.parse('red'), Gtk.StateType.NORMAL)
-				#eb.set_border_width(500)
-				#widget.add(eb)
-
-				self.fieldValidLabels[name].set_text('!')
-				print("Field " + name + " is invalid")
-			else:
-				self.fieldValidLabels[name].set_text('')
-				self.plugin.setConfigValue(name, val)
-
-				if widget.eb:
-					widget.remove(widget.eb)
-
-		if allValid:
-			if self.isNew:
-				self.pluginContainer.append(self.plugin)
-
-			self.app.updateConfig()
-			self.app.mainWindow.showScreen('Home')
 
 if __name__ == '__main__':
 	gui = Gui()
