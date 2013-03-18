@@ -7,7 +7,7 @@ except:
 
 setup(
     name='mycloudbackup',
-    version='0.1dev',
+    version='0.1.0',
     author='Christoph Herzog',
     author_email='chris@theduke.at',
     license='New BSD License',
@@ -15,7 +15,7 @@ setup(
     packages=['mcb',],
     scripts=['bin/mcb'],
     description="Back up data the cloud services you use",
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     install_requires=[
        #"Django >= 1.1.1",
         "pyyaml",
