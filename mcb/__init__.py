@@ -33,15 +33,16 @@ class Plugin(object):
   def setup(self):
     pass
 
-  def getTmpPath(self):
+  def getTmpPath(self, create=True):
     path = os.path.expanduser('~/.mcb/tmp/' + self.name)
+    
+    if create:
+      if os.path.isdir(path):
+        shutil.rmtree(path)
+      os.makedirs(path)
 
-    if os.path.isdir(path):
-      shutil.rmtree(path)
-
-    os.makedirs(path)
     return path
-
+    
   def setProgressHandler(self, handler):
     self.progressHandler = handler
 
