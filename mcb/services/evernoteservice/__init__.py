@@ -27,9 +27,10 @@ import oauth2 as oauth
 
 class EvernoteService(Service):
 
-  apiConsumerKey = 'theduke-1826'
-  apiConsumerSecret = 'a5a3083746d0af5a'
+  apiConsumerKey = 'theduke-1615'
+  apiConsumerSecret = '053ae89f50d531f1'
 
+  #EN_HOST = 'sandbox.evernote.com'
   EN_HOST = 'www.evernote.com'
 
   EN_REQUEST_TOKEN_URL = "https://" + EN_HOST + "/oauth"
@@ -47,7 +48,7 @@ class EvernoteService(Service):
     self.addConfig('username', 'Username')
     self.addConfig('password', 'Password')
 
-    self.addConfig('add_note_files', 'Save each note to own file', 'bool', default=False,
+    self.addConfig('add_note_files', 'Save each note to own file', 'bool', default=True,
       description="Create a file for each note with the note body in the Evernote XML format.")
 
     self.addConfig('create_json', 'Save to JSON', 'bool', default=True,
@@ -193,7 +194,8 @@ class EvernoteService(Service):
     self.initClient()
 
     notebooks = self.noteStore.listNotebooks(self.token)
-
+    
+    notebookIndex = 0
     for notebook in notebooks:
       self.progressHandler.startTask('Backing up notebook ' + notebook.name)
 
@@ -211,8 +213,10 @@ class EvernoteService(Service):
       for note in notelist.notes:
         i += 1
         notes.append(self.getNote(notebook.name, note.guid))
-
-        self.progressHandler.setProgress(float(i) / len(notelist.notes))
+        
+        notesProgress = float(i) / len(notelist.notes) / len(notebooks)
+        notebookProgress = float(notebookIndex) / len(notebooks)
+        self.progressHandler.setProgress(notesProgress + notebookProgress)
 
       if self.add_note_files:
         for note in notes:
@@ -226,3 +230,5 @@ class EvernoteService(Service):
 
       if self.create_csv:
         self.writeCsvData(notebook.name, 'data.csv', notes)
+      
+      notebookIndex += 1

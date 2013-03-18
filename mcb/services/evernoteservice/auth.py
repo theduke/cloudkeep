@@ -9,6 +9,8 @@ import os, sys
 import time
 import uuid
 
+import logging
+
 try:
     # python 3
     from http import client as httplib
@@ -80,7 +82,7 @@ class GeekNoteAuth(object):
     def loadPage(self, url, uri=None, method="GET", params=""):
         if not url:
             logging.error("Request URL undefined")
-            tools.exit()
+            return
 
         if not uri:
             urlData = urlparse(url)
@@ -186,13 +188,13 @@ class GeekNoteAuth(object):
 
         if response.status != 302:
             logging.error("Unexpected response status on allowing access 302 != %s", response.status)
-            tools.exit()
+            return
 
         responseData = self.parseResponse(response.location)
         if not responseData.has_key('oauth_verifier'):
             logging.error("OAuth verifier not found")
-            tools.exit()
-
+            return
+          
         self.verifierToken = responseData['oauth_verifier']
 
         #logging.debug("OAuth verifier token take")
