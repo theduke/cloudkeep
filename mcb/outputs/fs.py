@@ -30,6 +30,12 @@ class Filesystem(Output):
         os.makedirs(parent)
 
     return path
+  
+  def createBucket(self, name):
+    path = os.path.join(self.path, self.prefix, name)
+    
+    if not os.path.isdir(path):
+      os.makedirs(path)
 
   def set(self, name, data, bucket=None, mode='w'):
     path = self.getPath(name, bucket, create=True)

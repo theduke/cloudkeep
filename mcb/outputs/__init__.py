@@ -72,11 +72,32 @@ class Output(Plugin):
     path += sep + name
 
     return path
-
+  
+  def createBucket(self, name):
+    raise Exception('createBucket not implemented')
+  
   # add a new data unit to the store
   # returns a file-like object that can be written to
   def set(self, name, data, bucket=None, mode='w'):
     raise Exception('add method not implemented')
+  
+  def setFromLocalPath(self, name, path, bucket=None):
+    if os.path.isfile(path):
+      print('copying {name} from {path}'.format(name=name, path=path))
+      self.set(name, open(path, 'r'), bucket)
+    elif os.path.isdir(path):
+      print('copying directory  from {path}'.format(name=name, path=path))
+      if not bucket:
+          bucket = ''
+      else:
+        bucket += '/'
+      bucket += os.path.basename(path)
+      # Ensure that empty buckets get created.
+      self.createBucket(bucket)
+      
+      for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+        self.setFromLocalPath(item, item_path, bucket)
 
   def get(self, name, bucket=None):
     raise Exception('get method not implemented in ' + self.getClassName())
@@ -127,10 +148,18 @@ class OutputPipe(object):
 
   def setOutputs(self, outputs):
     self.outputs = outputs
+    
+  def createBucket(self, name):
+    for output in self.outputs:
+      output.createBucket(name)
 
   def set(self, name, data, bucket=None, mode='w'):
     for output in self.outputs:
-      f = output.set(name, data, bucket, mode)
+      output.set(name, data, bucket, mode)
+      
+  def setFromLocalPath(self, name, path, bucket=None):
+    for output in self.outputs:
+      output.setFromLocalPath(name, path, bucket)
 
   def get(self, name, bucket=None):
     return [output.get(name, bucket) for output in self.outputs]
