@@ -1,5 +1,8 @@
 from pprint import pprint
 import sys
+import logging
+
+from pprint import pprint
 
 from gi.repository import Gtk, Gdk, GObject
 
@@ -15,18 +18,31 @@ class GuiProgressHandler(ProgressHandler):
 
 	def __init__(self):
 		ProgressHandler.__init__(self)
+		# main progress bar
 		self.mainProgress = None
+		
+		# list store model that contains data for table
+		self.liststore = None
+		# iter for currently active backup 
+		self.list_iter = None
+
+		# ui update callback after finishing
 		self.gui_finished_callback = None
 
 	def onTaskAdded(self, name, progress):
-		self.mainProgress.set_fraction
 		print("added task: " + name)
 
 	def onTaskActivated(self, name, progress):
 		print("Starting task: " + name)
+		#self.currentTaksLabel.set_text(name)
 
 	def onProgressChanged(self, name, progress):
 		print("Progress: {p}%".format(p=int(progress*100)))
+		#self.taskProgress.set_fraction(progress)
+		#self.taskProgress.set_text(str(int(progress*100)) + '%')
+		Gdk.threads_enter()
+		self.liststore[self.list_iter][1] = progress*100
+		Gdk.threads_leave()
 
 	def onTaskFinished(self, name, task_progress):
 		Gdk.threads_enter()
@@ -36,11 +52,14 @@ class GuiProgressHandler(ProgressHandler):
 			b=len(self.tasks)
 		))
 		Gdk.threads_leave()
-
+		
+		self.list_iter = self.liststore.iter_next(self.list_iter)
 		print("Finished task: " + name)
 
+	def onBackupFinished(self):
 		if self.gui_finished_callback:
 			self.gui_finished_callback()
+		
 
 class Gui(Frontend):
 
@@ -52,6 +71,8 @@ class Gui(Frontend):
 
 		self.outputTypes = utils.getAllOutputs()
 		self.outputs = self.config.getOutputs()
+
+      	logging.basicConfig(level=logging.DEBUG)
 
 	def run(self):
 		self.mainWindow = win = MainWindow(self)
@@ -81,15 +102,19 @@ class Window(Gtk.Window):
 	def __init__(self, app, title):
 		Gtk.Window.__init__(self, title=title)
 		self.app = app
+		self.currentScreen = None
 		self.mainWidget = None
+
 
 	def showScreen(self, screen, data=None):
 		if type(screen) == str:
 			print('Showing screen ' + screen)
 			widget = getattr(self, 'screen' + screen)(data)
+			self.currentScreen = screen
 		else:
 			print('Showing screen ' + screen.__name__)
 			widget = screen(self.app, data).build()
+			self.currentScreen = widget
 
 		if widget:
 			if self.mainWidget:
@@ -105,7 +130,7 @@ class Screen(object):
 		self.app = app
 		self.data = data
 
-	def build():
+	def build(self):
 		# implement in subclass
 		pass
 
@@ -116,6 +141,7 @@ class MainWindow(Window):
 
 		self.app = app
 		self.set_border_width(30)
+		self.set_default_size(400, 650)
 
 	def screenHome(self, data=None):
 		mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -166,6 +192,8 @@ class MainWindow(Window):
 			delete.connect('clicked', self.deletePlugin)
 			grid.attach(delete, 2, index, 1, 1)
 
+			index += 1
+
 		# outputs list
 		label = Gtk.Label('Outputs')
 		mainBox.add(label)
@@ -194,6 +222,8 @@ class MainWindow(Window):
 			delete.pluginType = 'output'
 			delete.connect('clicked', self.deletePlugin)
 			grid.attach(delete, 2, index, 1, 1)
+
+			index += 1
 
 		return mainBox
 
@@ -261,30 +291,69 @@ class ScreenRunBackups(Screen):
 			return False
 
 		# Start running.
-		mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+		self.mainBox = mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
 
 		mainBox.add(Gtk.Label('Running Backups...'))
 		
+		# main progress bar
 		self.mainProgress = progress = Gtk.ProgressBar()
 		progress.gui_finished_callback = lambda: self.on_finished()
 		progress.set_show_text(True)
 		progress.set_text('0/' + str(len(self.app.services)))
 		progress.set_fraction(0.0)
 		mainBox.pack_start(progress, True, False, 0)
-
+		
 		self.runner = runner = self.app.getRunner()
 		handler = runner.progressHandler
+		
+		# Set up the backup list with progressbars
+		
+		liststore = Gtk.ListStore(str, int)
+		first_store_item = None
+		
+		for service in runner.services:
+			list_iter = liststore.append([service.getPrettyId(), 0])
+			if not first_store_item: first_store_item = list_iter
+			
+		treeview = Gtk.TreeView(model=liststore)
+		mainBox.add(treeview)
+			
+		renderer_text = Gtk.CellRendererText()
+		column_text = Gtk.TreeViewColumn("Text", renderer_text, text=0)
+		treeview.append_column(column_text)
+		
+		renderer_progress = Gtk.CellRendererProgress()
+		column_progress = Gtk.TreeViewColumn("Progress", renderer_progress,
+            value=1, inverted=2)
+		treeview.append_column(column_progress)
 
 		handler.mainProgress = progress
+		handler.liststore = liststore
+		handler.list_iter = first_store_item
 		handler.gui_finished_callback = lambda: self.on_finished()
 
-		runner.start()
+		self.startButton = startButton = Gtk.Button(label='Start')
+		startButton.connect('clicked', lambda button: self.on_start())
+		mainBox.add(startButton)
 
 		return mainBox
 
+	def on_start(self):
+		self.runner.start()
+
+		# Add an abort button
+		self.mainBox.remove(self.startButton)
+		cancelButton = Gtk.Button(label='Abort')
+		cancelButton.connect('clicked', lambda button: self.abort())
+		self.mainBox.add(cancelButton)
+		self.mainBox.show_all()
+
+	def abort(self):
+		pass
+
 	def on_finished(self):
 		self.app.mainWindow.showScreen(ScreenBackupsFinished, data={
-			'runner': self.runner
+			'runner': None
 		})
 
 class ScreenBackupsFinished(Screen):
@@ -312,6 +381,7 @@ class ScreenPluginEdit(Screen):
 
 		self.pluginContainer = app.services if self.pluginType == 'service' else app.outputs
 
+
 	def build(self):
 		"""
 		Edit a service.
@@ -319,6 +389,7 @@ class ScreenPluginEdit(Screen):
 		will be created.
 		If it is a config object, an existing one is edited.
 		"""
+
 
 		if self.isNew:
 			# get a fresh instance of the plugin
@@ -340,6 +411,7 @@ class ScreenPluginEdit(Screen):
 		mainBox.add(form)
 
 		self.fields = fields = {}
+		self.fieldValidLabels = {}
 
 		index = 0
 		for conf in plugin.config:
@@ -364,19 +436,20 @@ class ScreenPluginEdit(Screen):
 				if conf['options']:
 					# Generate a select widget
 
-					store = Gtk.ListStore(str)
-					for name, pretty_name in conf['options'].items():
-						activeiter = store.append([pretty_name])
+					store = Gtk.ListStore(str, str)
+					for option_name, pretty_name in conf['options'].items():
+						activeiter = store.append([option_name, pretty_name])
 
 					item = Gtk.ComboBox.new_with_model(store)
 					renderer = Gtk.CellRendererText()
 					item.pack_start(renderer, True)
-					item.add_attribute(renderer, "text", 0)
+					item.add_attribute(renderer, "text", 1)
 				else:
 					# plain text input
 
 					item = Gtk.Entry()
-					item.set_text(str(value) if value else '')
+					field_value = value or conf['default'] or ''
+					item.set_text(str(field_value))
 
 			item.set_tooltip_text(conf['description'])
 
@@ -385,6 +458,9 @@ class ScreenPluginEdit(Screen):
 
 			fields[name] = item
 			form.attach(item, 1, index, 1, 1)
+
+			self.fieldValidLabels[name] = validLabel = Gtk.Label('')
+			form.attach(validLabel, 2, index, 1, 1)
 
 			index += 1
 
@@ -417,25 +493,30 @@ class ScreenPluginEdit(Screen):
 				selected = widget.get_active_iter()
 				if selected != None:
 					model = widget.get_model()
-					val = model[selected][0]
+					val = model[selected][0]	
 			else:
 				raise Exception('Unknown widget type')
 
 			data[name] = val
-
+			print('validating: ' + name)
+			print(val)
 			if not self.plugin.validateField(self.plugin.getConfigItem(name), val):
 				allValid = False
 
-				widget.eb = eb = Gtk.EventBox()
+				#widget.eb = eb = Gtk.EventBox()
 				# Gtk.StateType.GTK_STATE_NORMAL
 				#eb.modify_bg(Gdk.Color.parse('red'), Gtk.StateType.NORMAL)
-				eb.set_border_width(500)
-				widget.add(eb)
+				#eb.set_border_width(500)
+				#widget.add(eb)
+
+				self.fieldValidLabels[name].set_text('!')
+				print("Field " + name + " is invalid")
 			else:
+				self.fieldValidLabels[name].set_text('')
 				self.plugin.setConfigValue(name, val)
 
 				if widget.eb:
-					widget.remove(eb)
+					widget.remove(widget.eb)
 
 		if allValid:
 			if self.isNew:
