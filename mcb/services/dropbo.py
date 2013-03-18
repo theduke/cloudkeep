@@ -6,7 +6,7 @@ from mcb.utils.dropbo import DropboxMixin
 
 import dropbox
 
-class DropboxService(Service, DropboxMixin):
+class DropboxService(DropboxMixin, Service):
 
   def setup(self):
     Service.setup(self)
