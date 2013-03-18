@@ -1,7 +1,7 @@
 from gi.repository import Gtk, Gdk, GObject
 
 from mcb import Plugin
-from mcb.frontends.gui import Screen
+from mcb.frontends.gui.base import Screen
 
 class ScreenPluginEdit(Screen):
   """Screen to edit a plugin."""
