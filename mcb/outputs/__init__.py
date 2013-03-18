@@ -83,10 +83,8 @@ class Output(Plugin):
   
   def setFromLocalPath(self, name, path, bucket=None):
     if os.path.isfile(path):
-      print('copying {name} from {path}'.format(name=name, path=path))
       self.set(name, open(path, 'r'), bucket)
     elif os.path.isdir(path):
-      print('copying directory  from {path}'.format(name=name, path=path))
       if not bucket:
           bucket = ''
       else:
