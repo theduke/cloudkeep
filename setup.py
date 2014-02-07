@@ -13,7 +13,7 @@ setup(
     license='New BSD License',
     url='http://pypi.python.org/pypi/TowelStuff/',
     packages=['mcb',],
-    scripts=['bin/mcb'],
+    scripts=['bin/mcb', 'bin/mcb-gui'],
     description="Back up data the cloud services you use",
     long_description=open('README.rst').read(),
     install_requires=[
